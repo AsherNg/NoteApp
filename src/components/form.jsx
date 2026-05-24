@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 function InputField({ id, label, type, value, setter, error, onFocus, onBlur, isFocused }) {
     const base = "text-black text-lg p-4 w-md text-clip rounded-lg border-2 box-border outline-none";
     const state = isFocused
@@ -8,7 +10,10 @@ function InputField({ id, label, type, value, setter, error, onFocus, onBlur, is
 
     return (
         <div className="flex flex-col items-start justify-center">
-            <label htmlFor={id} className="text-gray-300 text-base">{label}</label>
+            <div className="flex flex-row justify-start items-center gap-2">
+                <label htmlFor={id} className="text-gray-300 text-base">{ label }</label>
+                {error && <span className="text-red-500 text-sm">{error}</span>}
+            </div>
             <input
                 id={id}
                 type={type}
@@ -39,4 +44,10 @@ function Button({ text, onClick, enabled = true, type = "button" }) {
     );
 }
 
-export { InputField, Button };
+function Linker({ to, text }) {
+    return (
+        <Link to={to} className="text-gray-400 text-xs hover:underline cursor-pointer">{text}</Link>
+    )
+}
+
+export { InputField, Button, Linker };

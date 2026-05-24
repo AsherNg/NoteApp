@@ -1,12 +1,8 @@
 import { useState } from 'react';
-import { InputField, Button } from "./../../components/form.jsx";
-import { createClient } from '@supabase/supabase-js';
+import { InputField, Button, Linker } from "./../../components/form.jsx";
+import supabase from "./../../supabaseClient.jsx"
 import aginoteLogo from './../../assets/aginoteLogo.png';
-
-const supabase = createClient(
-    import.meta.env.VITE_SUPABASE_URL,
-    import.meta.env.VITE_SUPABASE_ANON_KEY
-);
+import { useNavigate } from 'react-router-dom';
 
 // --- Password criteria helpers ---
 const criteria = (password) => ({
@@ -83,12 +79,14 @@ function Register() {
     // --- Validation ---
     function buildErrors() {
         const e = {};
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email       = true;
-        if (!name.trim())                                e.name        = true;
-        if (!isPasswordSecure)                           e.pass        = true;
-        if (password !== confirmPass)                    e.confirmPass = true;
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email       = "Invalid Email";
+        if (!name.trim())                                e.name        = "Invalid Name";
+        if (!isPasswordSecure)                           e.password        = "Invalid Password";
+        if (password !== confirmPass)                    e.confirmPass = "Cannot confirm!";
         return e;
     }
+
+    const navigate = useNavigate();
 
     async function validateForm(e) {
         e.preventDefault(); // fixed: was missing ()
@@ -98,11 +96,11 @@ function Register() {
             const { data, error } = await supabase.auth.signUp({ email, password, 
                 options: { data: { name } } });
             if (error) {
-                setErrors({ email: true });
+                setErrors({ email: error.message });
             } else if (!data.user) {
-                setErrors({ email: true });
+                setErrors({ email: "Already registered E-mail" });
             } else {
-                navigate('/verify', { state: { email, name } });
+                navigate('/verify', { state: { user } });
             }
         }
     }
@@ -116,12 +114,12 @@ function Register() {
 
             <PasswordCriteria password={password} />
 
-            <form onSubmit={validateForm} className="flex flex-col justify-center items-start mx-4 border-box self-stretch border-b-2">
+            <form onSubmit={validateForm} noValidate className="flex flex-col justify-center items-start mx-4 border-box self-stretch border-b-2">
                 <div className="flex flex-wrap justify-around content-around gap-2">
                     {[
                         { id: "name", label: "Name", type: "text", value: name, setter: setName },
                         { id: "email", label: "E-mail", type: "email", value: email, setter: setEmail },
-                        { id: "pass", label: "Password", type: "password", value: password, setter: setPassword },
+                        { id: "password", label: "Password", type: "password", value: password, setter: setPassword },
                         { id: "confirmPass", label: "Confirm Password", type: "password", value: confirmPass, setter: setConfirmPass },
                     ].map(({ id, label, type, value, setter }) => (
                         <InputField
@@ -130,7 +128,7 @@ function Register() {
                             type={type}
                             value={value}
                             setter={setter}
-                            error={errors[id === "pass" ? "pass" : id]}
+                            error={errors[id]}
                             isFocused={focusedField === id}
                             onFocus={() => handleFocus(id)}
                             onBlur={handleBlur}
@@ -140,7 +138,7 @@ function Register() {
 
                 <div className="flex flex-col items-start justify-center gap-1 mt-4 ml-4 pb-1">
                     <Button text="Register!" type="submit" enabled={isFormClean} />
-                    <a className="text-gray-400 text-xs hover:underline cursor-pointer">Already Have An Account?</a>
+                    <Linker to="/login" text="Already Have An Account?"/>
                 </div>
             </form>
 

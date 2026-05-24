@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from "./supabaseClient.jsx";
+import supabase from "./supabaseClient.jsx";
 import Loading from "./pages/loading.jsx";
 import { Navigate } from 'react-router-dom';
 
@@ -30,13 +30,13 @@ export function AuthProvider({ children }) {
 export const useAuth = () => useContext(AuthContext);
 
 export function ProtectedRoute({ children }) {
-    const [user, loading] = useAuth();
+    const { user, loading } = useAuth();
     if (loading) return <Loading />;
     return user ? children : <Navigate to="/login" />;
 }
 
 export function AuthRoute({ children }) {
-    const [user, loading] = useAuth();
+    const { user, loading } = useAuth();
     if (loading) return <Loading />;
     return user ? <Navigate to="/editor"/> : children;
 }
