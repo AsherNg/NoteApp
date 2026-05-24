@@ -16,7 +16,8 @@ function Login() {
 
     const handleBlur = () => setFocusedField(null);
 
-    async function validateCredentials() {
+    async function validateCredentials(e) {
+        e.preventDefault();
         let currErr = {};
         const { data, error } = await supabase.auth.signInWithPassword({
             email: email,
@@ -24,12 +25,12 @@ function Login() {
         });
         if (error) {
             currErr.err = error.message;
-            setErrors(currErr.err);
+            setErrors(currErr);
         } else if (!data.user) {
             currErr.err = "Wrong email or password!";
-            setErrors(currErr.err);
+            setErrors(currErr);
         } else {
-            navigate("/editor", { state: { user } });
+            navigate("/editor");
         }
     }
 
@@ -62,8 +63,8 @@ function Login() {
     return (
         <div className="flex flex-col justify-center items-center gap-2 w-full h-screen overflow-hidden bg-gray-900">
             <img src={aginoteLogo} className="rounded-lg aspect-square w-xs" alt="AgiNote Logo" />
-            <form noValidate className="flex flex-wrap justify-center items-start mx-4 border-box self-stretch border-b-2">
-                <div className="flex flex-wrap justify-around content-around gap-2">
+            <form noValidate onSubmit={validateCredentials} className="flex flex-wrap justify-center items-start mx-4 border-box self-stretch border-b-2">
+                <div className="flex flex-wrap justify-around content-around gap-2 w-full">
                     {[
                         { id: "email", label: "E-mail", type: "email", value: email, setter: setEmail },
                         { id: "password", label: "Password", type: "password", value: password, setter: setPassword }
@@ -81,8 +82,8 @@ function Login() {
                         />
                     ))}
                 </div>
-                <div className="flex flex-col items-start justify-center gap-1 mt-4 ml-4 pb-1">
-                    <Button text="Login!" type="submit" enabled={isFormClean} />
+                <div className="flex flex-col items-start justify-center gap-1 w-full mt-4 ml-4 pb-1">
+                    <Button text="Login!" type="submit" enabled={isFormClean()} />
                     <Linker to="/register" text="Don't have an account?" />
                 </div>
             </form>
