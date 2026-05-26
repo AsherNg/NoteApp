@@ -85,6 +85,7 @@ function Login() {
                 <div className="flex flex-col items-start justify-center gap-1 w-full mt-4 ml-4 pb-1">
                     <Button text="Login!" type="submit" enabled={isFormClean()} />
                     <Linker to="/register" text="Don't have an account?" />
+                    <Linker to="/recovery" text="Forget password?" />
                 </div>
             </form>
             <div className="flex flex-row justify-center items-start gap-2">
