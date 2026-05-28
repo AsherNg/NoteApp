@@ -90,8 +90,8 @@ function Reset() {
                         value={confirmPass}
                         setter={setConfirmPass}
                         error={error}
-                        isFocused={focusedField === ""}
-                        onFocus={() => handleFocus("confirm password")}
+                        isFocused={focusedField === "confirmPass"}
+                        onFocus={() => handleFocus("confirmPass")}
                         onBlur={handleBlur}
                     />
                 </div>

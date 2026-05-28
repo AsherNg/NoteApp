@@ -100,7 +100,7 @@ function Register() {
             } else if (!data.user) {
                 setErrors({ email: "Already registered E-mail" });
             } else {
-                navigate('/verify', { state: { user } });
+                navigate('/verify', { state: { email } });
             }
         }
     }
