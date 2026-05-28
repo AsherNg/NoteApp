@@ -99,7 +99,7 @@ function Register() {
                 } });
             if (error) {
                 setErrors({ email: error.message });
-            } else if (!data.user) {
+            } else if (data?.user && data.user.identities && data.user.identities.length === 0) {
                 setErrors({ email: "Already registered E-mail" });
             } else {
                 navigate('/verify', { state: { email } });
@@ -117,25 +117,33 @@ function Register() {
             <PasswordCriteria password={password} />
 
             <form onSubmit={validateForm} noValidate className="flex flex-col justify-center items-start mx-4 border-box self-stretch border-b-2">
-                <div className="flex flex-wrap justify-around content-around gap-2">
+                <div className="flex flex-col justify-center items-around gap-2 w-full">
                     {[
-                        { id: "name", label: "Name", type: "text", value: name, setter: setName },
-                        { id: "email", label: "E-mail", type: "email", value: email, setter: setEmail },
-                        { id: "password", label: "Password", type: "password", value: password, setter: setPassword },
-                        { id: "confirmPass", label: "Confirm Password", type: "password", value: confirmPass, setter: setConfirmPass },
-                    ].map(({ id, label, type, value, setter }) => (
-                        <InputField
-                            id={id}
-                            label={label}
-                            type={type}
-                            value={value}
-                            setter={setter}
-                            error={errors[id]}
-                            isFocused={focusedField === id}
-                            onFocus={() => handleFocus(id)}
-                            onBlur={handleBlur}
-                        />
-                    ))}
+                        [
+                            { id: "name", label: "Name", type: "text", value: name, setter: setName },
+                            { id: "email", label: "E-mail", type: "email", value: email, setter: setEmail },
+                        ],
+                        [
+                            { id: "password", label: "Password", type: "password", value: password, setter: setPassword },
+                            { id: "confirmPass", label: "Confirm Password", type: "password", value: confirmPass, setter: setConfirmPass },
+                        ]
+                    ].map(arr => { return (
+                        <div className="flex justify-around items-center w-full">
+                            {arr.map(({ id, label, type, value, setter }) => (
+                                <InputField
+                                id={id}
+                                label={label}
+                                type={type}
+                                value={value}
+                                setter={setter}
+                                error={errors[id]}
+                                isFocused={focusedField === id}
+                                onFocus={() => handleFocus(id)}
+                                onBlur={handleBlur}
+                                />
+                            ))}
+                        </div>)}
+                    )}
                 </div>
 
                 <div className="flex flex-col items-start justify-center gap-1 mt-4 ml-4 pb-1">

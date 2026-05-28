@@ -9,7 +9,7 @@ import { Navigate } from "react-router-dom";
 import { AuthRoute, ProtectedRoute } from "./auth.jsx";
 
 const routes = [
-    { path: "/", element: <Navigate to="/register" />, errorElement: <ErrorPage /> },
+    { path: "/", element: <Navigate to="/login" />, errorElement: <ErrorPage /> },
     { path:"/login", element: <AuthRoute><Login /></AuthRoute>, errorElement: <ErrorPage /> },
     { path:"/register", element: <AuthRoute><Register /></AuthRoute>, errorElement: <ErrorPage />  },
     { path:"/recovery", element: <Recovery />, errorElement: <ErrorPage />  },
