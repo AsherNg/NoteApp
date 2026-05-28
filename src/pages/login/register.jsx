@@ -94,7 +94,9 @@ function Register() {
         setErrors(newErrors);
         if (Object.keys(newErrors).length === 0) {
             const { data, error } = await supabase.auth.signUp({ email, password, 
-                options: { data: { name } } });
+                options: { data: { name },
+                           emailRedirectTo: 'http://localhost:5173/editor'
+                } });
             if (error) {
                 setErrors({ email: error.message });
             } else if (!data.user) {

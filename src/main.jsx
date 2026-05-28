@@ -9,13 +9,9 @@ import Home from './pages/home.jsx'
 const router = createBrowserRouter(routes);
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <Home />
-  </StrictMode>,
-)
-
-    /*
-    <AuthProvider>
-        <RouterProvider router = {router} />
-    </AuthProvider>
-    */
+    <StrictMode>
+        <AuthProvider>
+            <RouterProvider router = {router} />
+        </AuthProvider>
+    </StrictMode>
+);
