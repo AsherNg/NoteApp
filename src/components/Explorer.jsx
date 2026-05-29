@@ -11,7 +11,7 @@ const Explorer = () => {
             <nav className="flex flex-col">
                 <div className="p-2">
                     <span className=""> Local Files </span>
-                    <Folder className="ml-2" TreeNode={FolderData}/>
+                    <Folder className="ml-2" TreeNode={localStorage.getItem('rootFolder')}/>
                 </div>
 
                 <hr className='mx-2'/>

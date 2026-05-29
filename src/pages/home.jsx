@@ -9,6 +9,9 @@ function Home() {
     const toggleExplorer = () => { setOpenExplorer(!openExplorer)}
 
     const [ activeTab, setActiveTab ] = useState(1)
+
+    const homeDir = window.fileApi.initDefault();
+    localStorage.setItem('rootFolder', homeDir);
     
     return (
         <div className="flex bg-(--color-bg) w-screen h-screen">

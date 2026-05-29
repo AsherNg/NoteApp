@@ -7,8 +7,10 @@ const createWindow = () => {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
+    minWidth: 600,
+    minHeight: 800,
     webPreferences: {
-        preload:path.join(__dirname, 'preload.js'),
+        preload:path.join(__dirname, 'preload.cjs'),
     },
   });
     win.loadURL('http://localhost:5173');
@@ -19,12 +21,31 @@ app.whenReady().then(() => {
 });
 
 ipcMain.handle('init-folder', async (event) => {
-    const defaultPath = path.join(os.homedir(), "AgiNote");
+    const defaultPath = path.join(os.homedir(), "AgiNote/notes");
     try {
         await fs.mkdir(defaultPath, { recursive: true });
         return defaultPath;
     } catch (error) {
         console.error("Failed to initialise folder: ", error);
+        throw error;
+    }
+});
+
+ipcMain.handle('is-folder', async (event, path) => {
+    try {
+        const stats = await fs.stat(path);
+        return stats.isDirectory();
+    } catch (error) {
+        console.error("Error checking if path is folder: ", error);
+        throw error;
+    }
+});
+
+ipcMain.handle('get-name', async (event, filePath) => {
+    try {
+        return path.basename(filePath);
+    } catch (error) {
+        console.error("Error checking if path is folder: ", error);
         throw error;
     }
 });
@@ -81,7 +102,8 @@ ipcMain.handle('create-file', async (event, filePath) => {
 ipcMain.handle('list-files', async (event, folderPath) => {
     try {
         const files = await fs.readdir(folderPath, { withFileTypes: true });
-        return files.map(f => ({
+        return files.map((f, idx) => ({
+            id: idx,
             name: f.name,
             isDirectory: f.isDirectory(),
             path: path.join(folderPath, f.name)

@@ -74,6 +74,7 @@ function Login() {
                         { id: "password", label: "Password", type: "password", value: password, setter: setPassword }
                     ].map(({ id, label, type, value, setter }) => (
                         <InputField
+                            key={id}
                             id={id}
                             label={label}
                             type={type}

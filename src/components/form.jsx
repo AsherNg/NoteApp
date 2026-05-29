@@ -50,4 +50,23 @@ function Linker({ to, text }) {
     )
 }
 
+/*
+function ContextMenu({ x, y, items }) {
+    const [hoverField, setHoverField] = useState('');
+    const onHover = (id) => {setHoverField(id)}
+
+    return (
+        <div className="fixed rounded-lg bg(--color-primary)" style={{ top: y, left: x }}>
+            {
+                items.map((item) => {(
+                    <li className="" onMouseOver={() => onHover(item.id)} onClick={item.onClick}>
+                        {item.name}
+                    </li>
+                )})
+            }
+        </div>
+    )
+}
+*/
+
 export { InputField, Button, Linker };

@@ -130,10 +130,11 @@ function Register() {
                             { id: "password", label: "Password", type: "password", value: password, setter: setPassword },
                             { id: "confirmPass", label: "Confirm Password", type: "password", value: confirmPass, setter: setConfirmPass },
                         ]
-                    ].map(arr => { return (
-                        <div className="flex justify-around items-center w-full">
+                    ].map((arr, idx) => { return (
+                        <div key={idx} className="flex justify-around items-center w-full">
                             {arr.map(({ id, label, type, value, setter }) => (
                                 <InputField
+                                key={id}
                                 id={id}
                                 label={label}
                                 type={type}

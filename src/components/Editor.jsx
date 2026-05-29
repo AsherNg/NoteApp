@@ -9,8 +9,9 @@ import {
   bracketMatching, foldGutter, foldKeymap
 } from "@codemirror/language";
 
-const Editor = ({tabId, activeTab}) => {
+const Editor = ({path, tabId, activeTab}) => {
     const editorParent = useRef(null);
+    const saveTimer = useRef(null);
 
     const editorTheme = EditorView.baseTheme({
         "&": {
@@ -31,7 +32,7 @@ const Editor = ({tabId, activeTab}) => {
             backgroundColor: "#242424"
         },
         ".cm-cursor": {
-            border: "2px solid #8f8f8f"
+            borderLeft: "2px solid #8f8f8f"
             //Why doesn't this work?
         }
     }, { dark: true });
@@ -39,26 +40,53 @@ const Editor = ({tabId, activeTab}) => {
     useEffect(() => {
         if (!editorParent.current) return;
 
-        const state = EditorState.create({
-            doc: "Type anything to start...",
-            extensions: [
-                editorTheme,
-                lineNumbers(),
-                highlightActiveLine(),
-                EditorView.lineWrapping,
-                syntaxHighlighting(defaultHighlightStyle),
-                bracketMatching(),
-                indentOnInput()
-            ]
-        })
+        async function init() {
+            let doc = "Type anything to start...";
 
-        const view = new EditorView({
-            state,
-            parent: editorParent.current
-        })        
+            if (path) {
+                try {
+                    doc = await window.fileApi.readFile(path);
+                } catch (e) {
+                    console.error("Failed to read file: ", e);
+                }
+            }
 
-        return () => view.destroy();
-    }, []);
+            const state = EditorState.create({
+                doc: "Type anything to start...",
+                extensions: [
+                    editorTheme,
+                    lineNumbers(),
+                    highlightActiveLine(),
+                    EditorView.lineWrapping,
+                    syntaxHighlighting(defaultHighlightStyle),
+                    bracketMatching(),
+                    indentOnInput(),
+                    EditorView.updateListener.of((update) => {
+                        if (update.docChanged && path) {
+                            clearTimeout(saveTimer);
+                            saveTimer = setTimeout(async () => {
+                                const content = update.state.doc.toString();
+                                await window.fileApi.writeFile(path, content);
+                            }, 1000);
+                        }
+                    }),
+                ]
+            })
+
+            const view = new EditorView({
+                state,
+                parent: editorParent.current
+            });
+
+            return view;
+        }
+        let view;
+        init().then(v => view = v);
+        return () => {
+            clearTimeout(saveTimer.current);
+            view?.destroy();
+        };
+    }, [path]);
 
     return (
         <div ref={editorParent} className={`grow-1 overflow-hidden my-10 mx-10 text-(--color-text) ${tabId == activeTab ? '' : 'hidden'}`}>

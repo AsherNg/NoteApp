@@ -1,7 +1,9 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-contextBridge.exposeInMainWorld('fileAPI', {
+contextBridge.exposeInMainWorld('fileApi', {
     initDefault: () => ipcRenderer.invoke('init-folder'),
+    isFolder: (path) => ipcRenderer.invoke('is-folder', path),
+    getName: (filePath) => ipcRenderer.invoke('get-name', filePath),
     readFile: (filePath) => ipcRenderer.invoke('read-file', filePath),
     writeFile: (filePath, content) => ipcRenderer.invoke('write-file', filePath, content),
     deleteFile: (path) => ipcRenderer.invoke('delete-file', path),
