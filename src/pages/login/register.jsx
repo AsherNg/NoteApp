@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { InputField, Button, Linker } from "./../../components/form.jsx";
 import supabase from "./../../supabaseClient.jsx"
-import aginoteLogo from './../../assets/aginoteLogo.png';
+import aginoteLogoOnly from './../../assets/aginoteLogoOnly.png';
 import { useNavigate } from 'react-router-dom';
+import { FcGoogle } from "react-icons/fc";
+import { ImGithub } from "react-icons/im";
 
 // --- Password criteria helpers ---
 const criteria = (password) => ({
@@ -114,52 +116,53 @@ function Register() {
 
     // --- Render ---
     return (
-        <div className="flex flex-col justify-center items-center gap-2 w-full h-screen overflow-hidden bg-gray-900">
-            <img src={aginoteLogo} className="rounded-lg aspect-square w-xs" alt="AgiNote Logo" />
-
-            <PasswordCriteria password={password} />
-
-            <form onSubmit={validateForm} noValidate className="flex flex-col justify-center items-start mx-4 border-box self-stretch border-b-2">
-                <div className="flex flex-col justify-center items-around gap-2 w-full">
-                    {[
-                        [
-                            { id: "name", label: "Name", type: "text", value: name, setter: setName },
-                            { id: "email", label: "E-mail", type: "email", value: email, setter: setEmail },
-                        ],
-                        [
+        <div className="flex flex-col justify-center w-screen h-screen bg-(--color-bg) text-(--color-hover) overflow-hidden">
+            <div className="flex flex-col items-center">
+                <span className="text-2xl font-semibold my-4">Register</span>
+                <form onSubmit={validateForm} noValidate className="flex flex-col justify-center items-center mx-4">
+                    <div className="flex flex-col justify-center items-center w-full">
+                        {[
+                            { id: "name", label: "Name", type: "text", value: name, setter: setName, example: "John Doe" },
+                            { id: "email", label: "E-mail", type: "email", value: email, setter: setEmail, example: "email@domain.com" },
                             { id: "password", label: "Password", type: "password", value: password, setter: setPassword },
-                            { id: "confirmPass", label: "Confirm Password", type: "password", value: confirmPass, setter: setConfirmPass },
-                        ]
-                    ].map((arr, idx) => { return (
-                        <div key={idx} className="flex justify-around items-center w-full">
-                            {arr.map(({ id, label, type, value, setter }) => (
+                            { id: "confirmPass", label: "Confirm Password", type: "password", value: confirmPass, setter: setConfirmPass }
+                        ].map(({ id, label, type, value, setter, example }) => (
                                 <InputField
-                                key={id}
-                                id={id}
-                                label={label}
-                                type={type}
-                                value={value}
-                                setter={setter}
-                                error={errors[id]}
-                                isFocused={focusedField === id}
-                                onFocus={() => handleFocus(id)}
-                                onBlur={handleBlur}
+                                    id={id}
+                                    label={label}
+                                    type={type}
+                                    value={value}
+                                    setter={setter}
+                                    error={errors[id]}
+                                    isFocused={focusedField === id}
+                                    onFocus={() => handleFocus(id)}
+                                    onBlur={handleBlur}
+                                    example={example}
                                 />
-                            ))}
-                        </div>)}
-                    )}
-                </div>
+                        ))}
+                        <div className="w-md my-2">
+                            <PasswordCriteria password={password} />
+                        </div>
+                        <Button className="my-4 w-md" text="Register" type="submit" enabled={isFormClean} />
+                    </div>
 
-                <div className="flex flex-col items-start justify-center gap-1 mt-4 ml-4 pb-1">
-                    <Button text="Register!" type="submit" enabled={isFormClean} />
-                    <Linker to="/login" text="Already Have An Account?"/>
-                </div>
-            </form>
-
-            <div className="flex flex-row justify-around items-center gap-2 m-2">
-                <Button text="Sign In With Google" onClick={handleGoogleSignIn} enabled={true} />
-                <Button text="Sign In With Github" onClick={handleGitHubSignIn} enabled={true} />
+                    <div className="flex flex-row w-md justify-center">
+                        <Linker to="/login" text="Already Have An Account?"/>
+                    </div>
+                </form>
             </div>
+
+            <div className="flex flex-col items-center justify-center">
+                            <div className="flex flex-row items-center justify-center w-md my-2">
+                                <hr className="w-2/7"/>
+                                <span className="mx-4 text-base">or continue with</span>
+                                <hr className="w-2/7"/>
+                            </div>
+                            <div className="flex flex-row w-md items-center justify-center">
+                                <Button className="mx-4 w-20" text={<FcGoogle /> } onClick={handleGoogleSignIn} enabled={true}/>
+                                <Button className="mx-4 w-20" text={<ImGithub />} onClick={handleGitHubSignIn} enabled={true}/>
+                            </div>
+                        </div> 
         </div>
     );
 }

@@ -3,6 +3,7 @@ import { PiUserCircle } from "react-icons/pi";
 import { PiFolders } from "react-icons/pi";
 import { PiFilePdf } from "react-icons/pi";
 import { PiGear } from "react-icons/pi";
+import Tooltip from "./Tooltip";
 
 const Sidebar = ({setOpenExplorer})  => {
     return (
@@ -16,9 +17,11 @@ const Sidebar = ({setOpenExplorer})  => {
 
                 <nav>
                     <ul>
-                        <li onClick={() => setOpenExplorer()} className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
-                            <PiFolders size={32} className="text-(--color-text) group-hover:text-(--color-hover)"/>
-                        </li>
+                        <Tooltip text="Explorer">
+                            <li onClick={() => setOpenExplorer()} className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
+                                <PiFolders size={32} className="text-(--color-text) group-hover:text-(--color-hover)"/>
+                            </li>
+                        </Tooltip>
                         <li className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
                             <PiFilePdf size={32} className="text-(--color-text) group-hover:text-(--color-hover)"/>
                         </li>
@@ -35,14 +38,18 @@ const Sidebar = ({setOpenExplorer})  => {
 
                 <nav>
                     <ul>
-                        <li className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
-                            <PiUserCircle size={32} className="text-(--color-text) group-hover:text-(--color-hover)"/>
-                        </li>
+                        <Tooltip text="Account">
+                            <li className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
+                                <PiUserCircle size={32} className="text-(--color-text) group-hover:text-(--color-hover)"/>
+                            </li>
+                        </Tooltip>
                     </ul>
                     <ul>
-                        <li className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
-                            <PiGear size={32} className="text-(--color-text) group-hover:text-(--color-hover)"/>
-                        </li>
+                        <Tooltip text="Settings">
+                            <li className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
+                                <PiGear size={32} className="text-(--color-text) group-hover:text-(--color-hover)"/>
+                            </li>
+                        </Tooltip>
                     </ul>
                 </nav>
                 
