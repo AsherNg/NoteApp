@@ -29,6 +29,10 @@ function Login() {
         } else if (!data.user) {
             currErr.err = "Wrong email or password!";
             setErrors(currErr);
+        } else if (error?.message.includes('Email not confirmed')) {
+            // resend OTP and send to verify
+            await supabase.auth.resend({ type: 'signup', email });
+            navigate('/verify', { state: { email, name } });
         } else {
             navigate("/editor");
         }

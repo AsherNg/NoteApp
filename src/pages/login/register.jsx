@@ -94,15 +94,18 @@ function Register() {
         setErrors(newErrors);
         if (Object.keys(newErrors).length === 0) {
             const { data, error } = await supabase.auth.signUp({ email, password, 
-                options: { data: { name },
-                           emailRedirectTo: 'http://localhost:5173/editor'
-                } });
+                options: { data: { name } } });
             if (error) {
-                setErrors({ email: error.message });
+                if (error?.message.includes('Email not confirmed')) {
+                    // resend OTP and send to verify
+                    await supabase.auth.resend({ type: 'signup', email });
+                    navigate('/verify', { state: { email, name } });
+                }
+                else { setErrors({ email: error.message }); }
             } else if (data?.user && data.user.identities && data.user.identities.length === 0) {
                 setErrors({ email: "Already registered E-mail" });
             } else {
-                navigate('/verify', { state: { email } });
+                navigate('/verify', { state: { email, name } });
             }
         }
     }

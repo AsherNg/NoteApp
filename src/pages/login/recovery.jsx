@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import supabase from './../../supabaseClient.jsx';
 import { InputField, Button } from '../../components/form.jsx';
+import { useNavigate } from 'react-router-dom';
 
 function Recovery() {
     const [email, setEmail] = useState('');
@@ -36,6 +37,8 @@ function Recovery() {
         }
     }
 
+    const navigate = useNavigate();
+
     return(
         <div className="flex flex-col items-center justify-start gap-2 bg-gray-900 h-screen w-full">
             <div className="text-2xl text-white">Forgot Password?</div>
@@ -50,7 +53,10 @@ function Recovery() {
                 onFocus={() => handleFocus()}
                 onBlur={handleBlur}
             />
+            <div className="flex justify-center items-center gap-2">
             <Button text="Reset!" type="button" enabled={!error.email} onClick={submitEmail} />
+            <Button text="Back to Login" type="button" enabled={true} onClick={() => navigate('/login')} />
+            </div>
         </div>
     )
 }
