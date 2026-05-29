@@ -30,7 +30,7 @@ function InputField({ id, label, type, value, setter, error, onFocus, onBlur, is
 
 function Button({ text, onClick, enabled = true, type = "button", className }) {
     const base = "px-4 py-2 text-lg font-bold flex justify-center items-center rounded-lg box-border";
-    const enabledStyle = "text-(--color-tertiary) bg-(--color-accent) hover:ring-4 hover:ring-green-700 active:bg-green-700 cursor-pointer";
+    const enabledStyle = "text-(--color-tertiary) bg-(--color-accent) hover:bg-(--color-accentHover) cursor-pointer";
     const disabledStyle = "text-white bg-gray-400 cursor-not-allowed opacity-60";
 
     return (
