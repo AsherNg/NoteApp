@@ -4,17 +4,17 @@ import { useState } from "react";
 const Folder = ({ TreeNode }) => {
     const [expand, setExpand] = useState(false);
 
-    if (window.fileApi.isFolder(TreeNode)) {
+    if (TreeNode.isFolder) {
         return (
             <div>
                 <div onClick={() => setExpand(!expand)} className="flex items-center cursor-pointer">
                     <IoChevronDownSharp size={12} className={`transition-transform mr-1 mt-1 ${expand ? "rotate-0" : "rotate-180"} `}/>
-                    <span>{window.fileApi.getName(TreeNode)}</span>
+                    <span>{TreeNode.name}</span>
                 </div>
 
                 <div className={ expand ? "pl-3" : "hidden"}>
-                    {window.fileApi.listFiles(TreeNode).map((file) => {
-                        return <Folder TreeNode={file.path} key={file.id}/>
+                    {TreeNode.items.map((item) => {
+                        return <Folder TreeNode={item} />
                     })}
                 </div>
             </div>
@@ -22,7 +22,7 @@ const Folder = ({ TreeNode }) => {
     } else {
         return (
             <div className="">
-                <span>{window.fileApi.getName(TreeNode)}</span>
+                <span>{TreeNode.name}</span>
             </div>
         );
     }
