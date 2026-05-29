@@ -11,7 +11,7 @@ import {
 
 const Editor = ({path, tabId, activeTab}) => {
     const editorParent = useRef(null);
-    const saveTimer = useRef(null);
+    let saveTimer = useRef(null);
 
     const editorTheme = EditorView.baseTheme({
         "&": {
