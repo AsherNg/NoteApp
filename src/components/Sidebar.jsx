@@ -10,7 +10,7 @@ const Sidebar = ({setOpenExplorer})  => {
         <>
             <aside className="flex flex-col bg-(--color-primary) h-screen border-r-2 border-(--color-secondary)">
                 <div className="flex item-center p-3 my-1">
-                    <img src={aginoteLogoOnly} alt="Logo" className="h-8    " />
+                    <img src={aginoteLogoOnly} alt="Logo" className="h-8 "/>
                 </div>
 
                 <hr className="text-(--color-text) border-1"/>
