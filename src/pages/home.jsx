@@ -10,7 +10,9 @@ function Home() {
 
     const [ activeTab, setActiveTab ] = useState(1)
 
-    const homeDir = window.fileApi.initDefault();
+    const homeDirPromise = window.fileApi.initDefault();
+    let homeDir;
+    homeDirPromise.then(dir => homeDir = dir);
     localStorage.setItem('rootFolder', homeDir);
     
     return (
