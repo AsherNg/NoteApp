@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
-const fs = require('node:fs/promises');
+const fs = require('fs');
 const os = require('os');
 
 const createWindow = () => {
@@ -16,8 +16,26 @@ const createWindow = () => {
     win.loadURL('http://localhost:5173');
 }
 
-app.whenReady().then(() => {
-  createWindow();
+const dirToJson = (dirPath) => {
+    const stats = fs.statSync(dirPath);
+    const info = {
+        name: path.basename(dirPath),
+        path: dirPath,
+        isFolder: stats.isDirectory(),
+    }
+
+    if (stats.isDirectory()) {
+        info.items = fs.readdirSync(dirPath).map(child => {
+            return dirToJson(path.join(dirPath, child));
+        });
+    }
+
+    return info;
+}
+
+
+ipcMain.handle('read-folder', async (event, dirPath) => {
+    return dirToJson(dirPath);
 });
 
 ipcMain.handle('init-folder', async (event) => {
@@ -34,7 +52,7 @@ ipcMain.handle('init-folder', async (event) => {
 ipcMain.handle('is-folder', async (event, path) => {
     try {
         const stats = await fs.stat(path);
-        return stats.isDirectory();
+        return stats.then(stat => stat.isDirectory());
     } catch (error) {
         console.error("Error checking if path is folder: ", error);
         throw error;
@@ -122,4 +140,8 @@ ipcMain.handle('rename', async (event, oldPath, newPath) => {
         console.error("Failed to rename: ", error);
         throw error;
     }
+});
+
+app.whenReady().then(() => {
+  createWindow();
 });

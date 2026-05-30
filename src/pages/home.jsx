@@ -10,15 +10,15 @@ function Home() {
 
     const [ activeTab, setActiveTab ] = useState(1)
 
-    const homeDirPromise = window.fileApi.initDefault();
+    //const homeDirPromise = window.fileApi.initDefault();
     let homeDir;
     homeDirPromise.then(dir => homeDir = dir);
-    localStorage.setItem('rootFolder', homeDir);
+    //localStorage.setItem('rootFolder', homeDir);
     
     return (
         <div className="flex bg-(--color-bg) w-screen h-screen">
             <Sidebar setOpenExplorer={toggleExplorer}/>
-            { openExplorer ? <Explorer/> : <></> }
+            <Explorer open={openExplorer} />
             <div className='w-full h-full flex flex-col'>
                 <Navbar activeTab={activeTab} setActiveTab={setActiveTab}/>
                 <Editor tabId={1} activeTab={activeTab}/>
