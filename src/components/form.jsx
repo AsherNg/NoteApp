@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 function InputField({ id, label, type, value, setter, error, onFocus, onBlur, isFocused, example }) {
@@ -51,23 +52,55 @@ function Linker({ to, text, className }) {
     )
 }
 
-/*
-function ContextMenu({ x, y, items }) {
+function ContextMenu({ x, y, onClose, items}) {
     const [hoverField, setHoverField] = useState('');
     const onHover = (id) => {setHoverField(id)}
+    const menuRef = useRef(null);
+
+    useEffect(() => {
+        function handleOpen(e) {
+            if (menuRef.current && !menuRef.current.contains(e.target)) {
+                onClose();
+            }
+        }
+
+        document.addEventListener("mousedown", handleOpen);
+        return () => document.removeEventListener("mousedown", handleOpen);
+    }, []);
 
     return (
-        <div className="fixed rounded-lg bg(--color-primary)" style={{ top: y, left: x }}>
+        <div ref={menuRef} className="fixed rounded-lg bg-[var(--color-primary)] z-50 p-1" style={{ top: y, left: x }}>
+            <ul className="list-none">
             {
-                items.map((item) => {(
-                    <li className="" onMouseOver={() => onHover(item.id)} onClick={item.onClick}>
+                items.map((item) => (
+                    <li key={item.id} className={hoverField === item.id ? "text-sm bg-[var(--color-secondary)] text-[var(--color-text)]" : "text-sm bg-[var(--color-primary)] text-[var(--color-text)]"} onMouseOver={() => onHover(item.id)} onClick={item.onClick} onMouseLeave={() => onHover('')}>
                         {item.name}
                     </li>
-                )})
+                ))
             }
+            </ul>
         </div>
     )
 }
-*/
 
-export { InputField, Button, Linker };
+function Alert({ children, menuRef, conditionals, actions, events}) {
+    useEffect(() => {
+        function handleEvent (e) {
+            if (menuRef.current && conditionals[events.indexOf(e.type)](e)) {
+                actions[events.indexOf(e.type)]();
+            }
+        }
+        events.forEach(event => document.addEventListener(event, handleEvent));
+        return () => events.forEach(event => document.removeEventListener(event, handleEvent));
+    }, []);
+
+    return (
+        <div className="fixed inset-0 flex justify-center items-center w-full h-full z-20 bg-black/20"> 
+            <div ref={menuRef} className="bg-[var(--color-primary)] rounded-lg p-2">
+                {children}
+            </div>
+        </div>
+    );
+}
+
+export { InputField, Button, Linker, ContextMenu, Alert };

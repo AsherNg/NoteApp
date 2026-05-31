@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
-const fs = require('fs');
+const fs = require('node:fs');
 const os = require('os');
 
 const createWindow = () => {
@@ -34,14 +34,14 @@ const dirToJson = (dirPath) => {
 }
 
 
-ipcMain.handle('read-folder', async (event, dirPath) => {
+ipcMain.handle('read-folder', (event, dirPath) => {
     return dirToJson(dirPath);
 });
 
 ipcMain.handle('init-folder', async (event) => {
     const defaultPath = path.join(os.homedir(), "AgiNote/notes");
     try {
-        await fs.mkdir(defaultPath, { recursive: true });
+        await fs.promises.mkdir(defaultPath, { recursive: true });
         return defaultPath;
     } catch (error) {
         console.error("Failed to initialise folder: ", error);
@@ -51,7 +51,7 @@ ipcMain.handle('init-folder', async (event) => {
 
 ipcMain.handle('is-folder', async (event, path) => {
     try {
-        const stats = await fs.stat(path);
+        const stats = await fs.promises.stat(path);
         return stats.then(stat => stat.isDirectory());
     } catch (error) {
         console.error("Error checking if path is folder: ", error);
@@ -59,7 +59,7 @@ ipcMain.handle('is-folder', async (event, path) => {
     }
 });
 
-ipcMain.handle('get-name', async (event, filePath) => {
+ipcMain.handle('get-name', (event, filePath) => {
     try {
         return path.basename(filePath);
     } catch (error) {
@@ -70,7 +70,7 @@ ipcMain.handle('get-name', async (event, filePath) => {
 
 ipcMain.handle('read-file', async (event, filePath) => {
     try {
-        const content = await fs.readFile(filePath, { encoding: 'utf-8' });
+        const content = await fs.promises.readFile(filePath, { encoding: 'utf-8' });
         return content;
     } catch (error) {
         console.error("Failed to read file: ", error);
@@ -80,7 +80,7 @@ ipcMain.handle('read-file', async (event, filePath) => {
 
 ipcMain.handle('write-file', async (event, filePath, content) => {
     try {
-        await fs.writeFile(filePath, content, { encoding: 'utf-8' });
+        await fs.promises.writeFile(filePath, content, { encoding: 'utf-8' });
         return true;
     } catch (error) {
         console.error("Failed to write file: ", error);
@@ -90,7 +90,7 @@ ipcMain.handle('write-file', async (event, filePath, content) => {
 
 ipcMain.handle('delete-file', async (event, path) => {
     try {
-        await fs.rm(path, { recursive: true, force: true });
+        await fs.promises.rm(path, { recursive: true, force: true });
     }
     catch (error) {
         console.error("Failed to delete file: ", error);
@@ -100,7 +100,7 @@ ipcMain.handle('delete-file', async (event, path) => {
 
 ipcMain.handle('create-folder', async (event, folderPath) => {
     try {
-        await fs.mkdir(folderPath, { recursive: true });
+        await fs.promises.mkdir(folderPath, { recursive: true });
     } catch (error) {
         console.error("Failed to make directory: ", error);
         throw error;
@@ -109,7 +109,7 @@ ipcMain.handle('create-folder', async (event, folderPath) => {
 
 ipcMain.handle('create-file', async (event, filePath) => {
     try {
-        await fs.writeFile(filePath, '', {encoding: 'utf-8'});
+        await fs.promises.writeFile(filePath, '', {encoding: 'utf-8'});
         return true;
     } catch (error) {
         console.error("Failed to make file: ", error);
@@ -117,24 +117,9 @@ ipcMain.handle('create-file', async (event, filePath) => {
     }
 });
 
-ipcMain.handle('list-files', async (event, folderPath) => {
-    try {
-        const files = await fs.readdir(folderPath, { withFileTypes: true });
-        return files.map((f, idx) => ({
-            id: idx,
-            name: f.name,
-            isDirectory: f.isDirectory(),
-            path: path.join(folderPath, f.name)
-        }));
-    } catch (error) {
-        console.error("Failed to list files: ", error);
-        throw error;
-    }
-});
-
 ipcMain.handle('rename', async (event, oldPath, newPath) => {
     try {
-        await fs.rename(oldPath, newPath);
+        await fs.promises.rename(oldPath, newPath);
         return true;
     } catch (error) {
         console.error("Failed to rename: ", error);

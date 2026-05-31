@@ -5,8 +5,8 @@ import {
     highlightActiveLine
 } from "@codemirror/view";
 import {
-  defaultHighlightStyle, syntaxHighlighting, indentOnInput,
-  bracketMatching, foldGutter, foldKeymap
+    defaultHighlightStyle, syntaxHighlighting, indentOnInput,
+    bracketMatching, foldGutter, foldKeymap
 } from "@codemirror/language";
 
 const Editor = ({path, tabId, activeTab}) => {
@@ -37,8 +37,16 @@ const Editor = ({path, tabId, activeTab}) => {
         }
     }, { dark: true });
 
+    console.log('Editor path:', path, 'tabId:', tabId, 'activeTab:', activeTab);
+    const viewRef = useRef(null);
     useEffect(() => {
+        console.log('useEffect fired, path:', path);
         if (!editorParent.current) return;
+        editorParent.current.innerHTML = '';
+        viewRef.current?.destroy();
+        viewRef.current = null;
+
+        let cancelled = false;
 
         async function init() {
             let doc = "Type anything to start...";
@@ -50,9 +58,10 @@ const Editor = ({path, tabId, activeTab}) => {
                     console.error("Failed to read file: ", e);
                 }
             }
+            if (cancelled) return;
 
             const state = EditorState.create({
-                doc: "Type anything to start...",
+                doc: doc,
                 extensions: [
                     editorTheme,
                     lineNumbers(),
@@ -63,33 +72,28 @@ const Editor = ({path, tabId, activeTab}) => {
                     indentOnInput(),
                     EditorView.updateListener.of((update) => {
                         if (update.docChanged && path) {
-                            clearTimeout(saveTimer);
-                            saveTimer = setTimeout(async () => {
+                            clearTimeout(saveTimer.current);
+                            saveTimer.current = setTimeout(async () => {
                                 const content = update.state.doc.toString();
                                 await window.fileApi.writeFile(path, content);
-                            }, 1000);
+                            }, 300);
                         }
                     }),
                 ]
             })
-
-            const view = new EditorView({
-                state,
-                parent: editorParent.current
-            });
-
-            return view;
+            viewRef.current = new EditorView({ state, parent: editorParent.current });
         }
-        let view;
-        init().then(v => view = v);
+        init();
         return () => {
+            cancelled = true;
             clearTimeout(saveTimer.current);
-            view?.destroy();
+            viewRef.current?.destroy();
+            viewRef.current = null;
         };
     }, [path]);
 
     return (
-        <div ref={editorParent} className={`grow-1 overflow-hidden my-10 mx-10 text-(--color-text) ${tabId == activeTab ? '' : 'hidden'}`}>
+        <div ref={editorParent} className={`grow-1 overflow-hidden my-10 mx-10 text-(--color-text) ${tabId === activeTab ? '' : 'hidden'}`}>
         </div>
     );
 }
