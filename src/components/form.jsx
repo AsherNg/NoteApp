@@ -11,7 +11,7 @@ function InputField({ id, label, type, value, setter, error, onFocus, onBlur, is
 
     return (
         <div className="flex flex-col items-start justify-center">
-            <div className="flex flex-row justify-start items-center">
+            <div className="flex flex-row justify-start items-center gap-2">
                 <label htmlFor={id} className="my-2 text-base font-bold">{ label }</label>
                 {error && <span className="text-red-500 text-sm">{error}</span>}
             </div>

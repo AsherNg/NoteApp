@@ -4,6 +4,7 @@ import Editor from '../components/Editor'
 import Navbar from '../components/Navbar'
 import { useRef, useState, useEffect } from 'react';
 import { InputField, Alert, Button } from '../components/form';
+import Loading  from "./loading.jsx";
 
 function NewTab({tabId, activeId, setShowNewNote}) {
     return (<div className={`w-full h-full flex justify-center items-center flex-col gap-2 ${tabId !== activeId ? 'hidden' : ''}`}>
@@ -22,7 +23,7 @@ function NewNote({ homeDir, onClose, updateTree, onFileCreate }) {
         nameRef.current = val;
     }
 
-    const checkValidName = () => /^[a-zA-Z0-9_\-\.]+$/.test(nameRef.current);
+    const checkValidName = () => /^[a-zA-Z0-9_\-]+$/.test(nameRef.current);
     const menuRef = useRef(null);
 
     const submitNote = async () => {
@@ -40,7 +41,7 @@ function NewNote({ homeDir, onClose, updateTree, onFileCreate }) {
     }
     return (<Alert menuRef={menuRef} events={["mousedown", "keydown"]} conditionals={[(mouseDown) => !menuRef.current.contains(mouseDown.target), (keyDown) => keyDown.key === 'Enter']} actions={[onClose, () => submitNote(name)]}>
             <div className="flex flex-col justify-center items-center">
-            <InputField id="makeFile" label="Make New Note" type="text" value={name} setter={handleSetNames} error={checkValidName() ? "" : " Invalid Name"} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} isFocused={focused} example="Untitled"/>
+            <InputField id="makeFile" label="Make New Note" type="text" value={name} setter={handleSetNames} error={checkValidName() ? "" : "Invalid Name"} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} isFocused={focused} example="Untitled"/>
             <div className="text-[var(--color-text)] text-sm ml-auto">Click enter to submit, click outside the box to close this window!</div>
             </div>
         </Alert>)
@@ -65,22 +66,32 @@ function Home() {
     const [showNewNote, setShowNewNote] = useState(false);
     const [homeDir, setHomeDir] = useState(null);
     const [treeVersion, setTreeVersion] = useState(0);
+    const [loading, setLoading] = useState(true);
     const refreshTree = () => setTreeVersion(v => v+1);
 
     useEffect(() => {localStorage.setItem("activeTab", JSON.stringify(activeTab))}, [activeTab]);
     useEffect(() => {localStorage.setItem("openTabs", JSON.stringify(openTabs))}, [openTabs]);
 
     useEffect(() => {
-        window.fileApi.initDefault().then(h => {
-            setHomeDir(h);
-            localStorage.setItem('rootFolder', h);
-        });
+        const saved = localStorage.getItem('rootFolder');
+        if (saved) {
+            setHomeDir(saved);
+            setLoading(false);
+        } else {
+            window.fileApi.initDefault().then(h => {
+                setHomeDir(h);
+                localStorage.setItem('rootFolder', h);
+                setLoading(false);
+            });
+        };
     }, []);
 
     function onFileCreate(path) {
         setOpenTabs(prev => prev.map(tab => tab.id === activeTab.id ? { ...tab, path: path } : tab));
         setActiveTab(prev => ({ ...prev, path: path }));
     }
+
+    if (loading) return <Loading />
 
     return (
         <div className="flex bg-[var(--color-bg)] w-screen h-screen">
