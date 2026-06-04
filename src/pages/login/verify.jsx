@@ -63,8 +63,8 @@ function Verify() {
     }
 
     return (
-        <div className="flex flex-col justify-start items-center gap-2 h-screen w-full bg-gray-900">
-            <div className="text-2xl text-gray-400">Please verify your email!</div>
+        <div className="flex flex-col items-center justify-start w-screen h-screen bg-(--color-bg) text-(--color-hover) overflow-hidden">
+            <span className="text-2xl font-semibold my-4">Please verify your email!</span>
             <InputField
                 id="verify"
                 label="Verify Email"
@@ -76,8 +76,11 @@ function Verify() {
                 onFocus={handleFocus}
                 onBlur={handleBlur}
             />
-            <Button text={resend ? "Resent!" : "Resend OTP"} onClick={resendOTP} enabled={resend} />
-            <Button text="Verify" onClick={handleVerify} enabled={!error} />
+            <div className="flex flex-row justify-center gap-2 items-center">
+                <Button className="my-4" text={resend ? "Resent!" : "Resend OTP"} onClick={resendOTP} enabled={resend} />
+                <Button className="my-4" text="Verify" onClick={handleVerify} enabled={!error} />
+                <Button className="my-4" text="Go Back!" onClick={() => navigate('/register')} enabled={true}/>
+            </div>
         </div>
     );
 }
