@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import supabase from "./../../supabaseClient.jsx";
-import { InputField, Button } from '../../components/form';
+import { InputField, Button } from '../../components/Form';
 
 function Verify() {
     const location = useLocation();

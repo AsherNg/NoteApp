@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import supabase from './../../supabaseClient.jsx';
-import { InputField, Button } from '../../components/form.jsx';
+import { InputField, Button } from '../../components/Form.jsx';
 import { useNavigate } from 'react-router-dom';
 
 function Recovery() {

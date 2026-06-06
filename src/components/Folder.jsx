@@ -1,6 +1,6 @@
 import { IoChevronDownSharp } from "react-icons/io5";
 import { useEffect, useRef, useState } from "react";
-import { Alert, ContextMenu, InputField } from "./form";
+import { Alert, ContextMenu, InputField } from "./Form";
 
 const checkValidName = (name) => /^[a-zA-Z0-9_\-\.]+$/.test(name);
 const newNote = (path) => { console.log("Hello World!") }
@@ -14,16 +14,14 @@ const moveFolder = (path) => { console.log("Hello World!") }
 const copyFile = (path) => { console.log("Hello World!") }
 const moveFile = (path) => { console.log("Hello World!") }
 
-
-const Folder = ({ TreeNode, activeTab, setActiveTab, setOpenTabs }) => {
+const Folder = ({ TreeNode, activeTab, setActiveTab, setOpenTabs, indents }) => {
     const [expand, setExpand] = useState(false);
-
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
-
+    
     if (TreeNode.isFolder) {
         return (
             <div>
-                <div id={TreeNode.path} onClick={() => setExpand(!expand)} className="flex items-center cursor-pointer">
+                <div id={TreeNode.path} style={{ paddingLeft: `${indents}px`}} onClick={() => setExpand(!expand)} className="flex items-center text-ellipsis overflow-hidden pr-2 cursor-pointer hover:bg-(--color-secondary)">
                     <IoChevronDownSharp size={12} className={`transition-transform mr-1 mt-1 ${expand ? "rotate-0" : "rotate-180"} `}/>
                     <span onContextMenu=
                         {(e) => {
@@ -35,9 +33,9 @@ const Folder = ({ TreeNode, activeTab, setActiveTab, setOpenTabs }) => {
                     </span>
                 </div>
 
-                <div className={ expand ? "pl-3" : "hidden"}>
+                <div className={ expand ? "" : "hidden"}>
                     {TreeNode.items.map((item) => {
-                        return <Folder key={item.path} TreeNode={item} activeTab={activeTab} setActiveTab={setActiveTab} setOpenTabs={setOpenTabs} />
+                        return <Folder key={item.path} TreeNode={item} activeTab={activeTab} setActiveTab={setActiveTab} setOpenTabs={setOpenTabs} indents={indents + 10} />
                     })}
                 </div>
             {contextMenu.visible && (<ContextMenu x={contextMenu.x} y={contextMenu.y} onClose={() => {setContextMenu({ visible: false, x: 0, y: 0 })}} items={
@@ -54,7 +52,7 @@ const Folder = ({ TreeNode, activeTab, setActiveTab, setOpenTabs }) => {
         );
     } else {
         return (
-            <div className={`w-full rounded-lg ${activeTab?.path === TreeNode.path ? 'rounded-sm bg-[var(--color-secondary)]' : ''}`} onClick={() => {
+            <div style={{ paddingLeft: `${indents}px`}} className={`w-full cursor-pointer text-ellipsis overflow-hidden pr-2 ${activeTab?.path === TreeNode.path ? 'bg-[var(--color-tertiary)]' : 'hover:bg-(--color-secondary)'}`} onClick={() => {
                     setActiveTab(prev => ({...prev, path: TreeNode.path}))
                     setOpenTabs(prev => prev.map(tab => tab.id === activeTab.id
                             ? {...tab, path: TreeNode.path}

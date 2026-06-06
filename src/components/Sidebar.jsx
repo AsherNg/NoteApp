@@ -4,8 +4,9 @@ import { PiFolders } from "react-icons/pi";
 import { PiFilePdf } from "react-icons/pi";
 import { PiGear } from "react-icons/pi";
 import Tooltip from "./Tooltip";
+import { useState } from "react";
 
-const Sidebar = ({setOpenExplorer})  => {
+const Sidebar = ({setOpenExplorer, setOpenAccount, setOpenSettings})  => {
     return (
         <>
             <aside className="flex flex-col bg-(--color-primary) h-screen border-r-2 border-(--color-secondary)">
@@ -39,14 +40,14 @@ const Sidebar = ({setOpenExplorer})  => {
                 <nav>
                     <ul>
                         <Tooltip text="Account">
-                            <li className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
+                            <li onClick={() => setOpenAccount()} className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
                                 <PiUserCircle size={32} className="text-(--color-text) group-hover:text-(--color-hover)"/>
                             </li>
                         </Tooltip>
                     </ul>
                     <ul>
                         <Tooltip text="Settings">
-                            <li className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
+                            <li onClick={() => setOpenSettings()} className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
                                 <PiGear size={32} className="text-(--color-text) group-hover:text-(--color-hover)"/>
                             </li>
                         </Tooltip>
