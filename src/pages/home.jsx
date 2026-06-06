@@ -115,7 +115,7 @@ function Home() {
             <div className='w-full h-full flex flex-col'>
                 <Navbar openTabs={openTabs} setOpenTabs={setOpenTabs} activeTab={activeTab} setActiveTab={setActiveTab} />
                 {showNewNote && <NewNote homeDir={homeDir} onClose={() => setShowNewNote(false)} updateTree={refreshTree} onFileCreate={onFileCreate}/>}
-                <div className='w-full h-full flex flex-col'>
+                <div className='w-full h-full flex justify-center'>
                     {openTabs.map(fileItem => fileItem?.path !== null 
                         ? <Editor key={fileItem.id} path={fileItem.path} tabId={fileItem.id} activeTab={activeTab?.id} /> 
                         : <NewTab key={fileItem.id} tabId={fileItem.id} activeId={activeTab?.id} setShowNewNote={setShowNewNote} />

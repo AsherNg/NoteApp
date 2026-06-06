@@ -12,6 +12,9 @@
     "start": "concurrently \"npm run dev\" \"electron .\""
   },
   "dependencies": {
+    "@codemirror/lang-markdown": "^6.5.0",
+    "@codemirror/language-data": "^6.5.2",
+    "@lezer/highlight": "^1.2.3",
     "@supabase/supabase-js": "^2.106.1",
     "@tailwindcss/vite": "^4.3.0",
     "codemirror": "^6.0.2",
