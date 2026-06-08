@@ -2,8 +2,8 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 import { GoPlus } from "react-icons/go";
 import { useState, useEffect } from "react";
 
-const allTabs = "flex w-36 justify-between items-center px-7 py-2 border-(--color-secondary) border-1 border-l-0 cursor-pointer";
-const activeClass = allTabs + " bg-(--color-bg) border-t-(--color-accent) border-b-0";
+const allTabs = "flex w-36 justify-between items-center px-7 py-2 border-1 border-l-0 border-(--color-border) cursor-pointer";
+const activeClass = allTabs + " bg-(--color-bg) border-t-(--color-accent) border-b-(--color-bg)";
 const hoverClass = allTabs + " bg-(--color-secondary)";
 const inactiveClass = allTabs + " bg-(--color-primary)";
 

@@ -9,46 +9,46 @@ import { useState } from "react";
 const Sidebar = ({setOpenExplorer, setOpenAccount, setOpenSettings})  => {
     return (
         <>
-            <aside className="flex flex-col bg-(--color-primary) h-screen border-r-2 border-(--color-secondary)">
+            <aside className="flex flex-col bg-(--color-primary) h-screen border-r-2 border-(--color-border)">
                 <div className="flex item-center p-3 my-1">
                     <img src={aginoteLogoOnly} alt="Logo" className="h-8 "/>
                 </div>
 
-                <hr className="text-(--color-text) border-1"/>
+                <hr className="text-(--color-border) border-1"/>
 
                 <nav>
                     <ul>
                         <Tooltip text="Explorer">
                             <li onClick={() => setOpenExplorer()} className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
-                                <PiFolders size={32} className="text-(--color-text) group-hover:text-(--color-hover)"/>
+                                <PiFolders size={32} className="text-(--color-icon) group-hover:text-(--color-hover)"/>
                             </li>
                         </Tooltip>
                         <li className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
-                            <PiFilePdf size={32} className="text-(--color-text) group-hover:text-(--color-hover)"/>
+                            <PiFilePdf size={32} className="text-(--color-icon) group-hover:text-(--color-hover)"/>
                         </li>
                         <li className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer">
-                            <PiFilePdf size={32} className="text-(--color-text)"/>
+                            <PiFilePdf size={32} className="text-(--color-icon)"/>
                         </li>
                         <li className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer">
-                            <PiFilePdf size={32} className="text-(--color-text)"/>
+                            <PiFilePdf size={32} className="text-(--color-icon)"/>
                         </li>
                     </ul>
                 </nav>
 
-                <hr className="text-(--color-text) border-1"/>
+                <hr className="text-(--color-border) border-1"/>
 
                 <nav>
                     <ul>
                         <Tooltip text="Account">
                             <li onClick={() => setOpenAccount()} className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
-                                <PiUserCircle size={32} className="text-(--color-text) group-hover:text-(--color-hover)"/>
+                                <PiUserCircle size={32} className="text-(--color-icon) group-hover:text-(--color-hover)"/>
                             </li>
                         </Tooltip>
                     </ul>
                     <ul>
                         <Tooltip text="Settings">
                             <li onClick={() => setOpenSettings()} className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
-                                <PiGear size={32} className="text-(--color-text) group-hover:text-(--color-hover)"/>
+                                <PiGear size={32} className="text-(--color-icon) group-hover:text-(--color-hover)"/>
                             </li>
                         </Tooltip>
                     </ul>

@@ -2,14 +2,47 @@
 
 @theme {
   /* Default */
-  --color-primary: #1b1b1b;
-  --color-secondary: #242424;
-  --color-tertiary: #303030;
-  --color-bg: #101010;
-  --color-text: #8f8f8f;
-  --color-hover: #e2e2e2;
-  --color-accent: #aee7cb;
-  --color-accentHover: #90c9ad;
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-tertiary: var(--tertiary);
+  --color-border: var(--border);
+  --color-bg: var(--bg);
+  --color-text: var(--text);
+  --color-icon: var(--icon);
+  --color-hover: var(--hover);
+  --color-active: var(--active);
+  --color-accent: var(--accent);
+  --color-accentHover: var(--accentHover);
+}
+
+@layer theme {
+  :root, [data-theme="Dark"] {
+    --primary: #1b1b1b;
+    --secondary: #242424;
+    --tertiary: #303030;
+    --border: #454545;
+    --bg: #101010;
+    --text: #8f8f8f;
+    --icon: #8f8f8f; 
+    --hover: #e2e2e2;
+    --active: #e2e2e2;
+    --accent: #aee7cb;
+    --accentHover: #90c9ad; 
+  }
+
+  [data-theme="Light"] {
+    --primary: #ffffff;
+    --secondary: #f3f3f3;
+    --tertiary: #303030;
+    --border: #d6d6d6;
+    --bg: #F9FAFB ;
+    --text: #4B5563;
+    --icon: #a3a3a3;
+    --hover: #696969;
+    --active: #40444a;
+    --accent: #aee7cb;
+    --accentHover: #90c9ad; 
+  }
 }
 
 body {

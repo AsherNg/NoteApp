@@ -48,7 +48,7 @@ function Button({ text, onClick, enabled = true, type = "button", className }) {
 
 function Linker({ to, text, className }) {
     return (
-        <Link to={to} className={`text-gray-400 text-xs hover:underline cursor-pointer ${className}`}>{text}</Link>
+        <Link to={to} className={`text-xs hover:underline cursor-pointer ${className}`}>{text}</Link>
     )
 }
 

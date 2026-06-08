@@ -3,8 +3,9 @@ import Explorer from '../components/Explorer';
 import Editor from '../components/Editor'
 import Navbar from '../components/Navbar'
 import Modal from '../components/Modal.jsx';
+import Dropdown from '../components/Dropdown.jsx';
 import { IoClose } from "react-icons/io5";
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, use } from 'react';
 import { InputField, Alert, Button } from '../components/Form';
 import Loading  from "./loading.jsx";
 import supabase from "../supabaseClient.jsx";
@@ -101,6 +102,11 @@ function Home() {
         };
     }, []);
 
+    const [theme, setTheme] = useState(() => {
+        return localStorage.getItem("theme") ?? "Dark";
+    });
+    useEffect(() => {document.documentElement.setAttribute('data-theme', theme);}, [theme]);
+
     const onFileCreate = (path) => {
         setOpenTabs(prev => prev.map(tab => tab.id === activeTab.id ? { ...tab, path: path } : tab));
         setActiveTab(prev => ({ ...prev, path: path }));
@@ -136,10 +142,22 @@ function Home() {
             </Modal>
 
             <Modal isOpen={openSettings}>
-                <div className="w-3xl h-[80%] flex justify-center bg-(--color-bg) rounded-lg p-10 text-(--color-text)">
-                    <div className="flex flex-row justify-between w-full">
-                        <span className="font-bold text-(--color-hover)">Settings</span>
+                <div className="w-2xl h-[80%] flex flex-col items-center bg-(--color-bg) rounded-lg p-10 text-(--color-text)">
+                    <div className="flex flex-row justify-between w-full my-3">
+                        <span className="font-bold text-lg text-(--color-hover)">Settings</span>
                         <IoClose size={24} onClick={() => setOpenSettings(false)} className="cursor-pointer hover:text-(--color-hover)"/>
+                    </div>
+                    <div className="border-1 border-(--color-border) w-full my-3"></div>
+                    <div className="flex justify-between items-center w-full my-3">
+                        <div className="flex flex-col">
+                            <span className="font-semibold text-(--color-hover)">Theme</span>
+                            <span>Choose the color theme of the app</span>
+                        </div>
+                        <Dropdown activeText={theme} options={[
+                            { id: 1, text: "Dark", onSelect: () => { if (theme !== "Dark") setTheme("Dark"); localStorage.setItem("theme", "Dark"); }},
+                            { id: 2, text: "Light", onSelect: () => { if (theme !== "Light") setTheme("Light"); localStorage.setItem("theme", "Light"); }},
+                            { id: 3, text: "Custom" }
+                        ]}></Dropdown>
                     </div>
                 </div>
             </Modal>
