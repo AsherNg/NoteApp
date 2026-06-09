@@ -1,7 +1,7 @@
 import { useState } from "react";
 import supabase from "./../../supabaseClient.jsx";
 import aginoteLogoOnly from "./../../assets/aginoteLogoOnly.png";
-import { InputField, Button, Linker } from "../../components/form.jsx";
+import { InputField, Button, Linker } from "../../components/Form.jsx";
 import { FcGoogle } from "react-icons/fc";
 import { ImGithub } from "react-icons/im";
 
@@ -67,7 +67,7 @@ function Login() {
     const isFormClean = () => Object.keys(errors).length === 0;
 
     return (
-        <div className="w-screen h-screen flex flex-col text-(--color-hover) bg-(--color-bg) justify-center">
+        <div className="w-screen h-screen flex flex-col text-(--color-text) bg-(--color-bg) justify-center">
             <div className="flex flex-col items-center mb-10">
                 <img src={aginoteLogoOnly} alt="AgiNote Logo" className="w-32 h-32 my-2"/>
                 <span className="text-4xl font-bold">AgiNote</span>

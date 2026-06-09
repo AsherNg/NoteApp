@@ -48,7 +48,7 @@ function Button({ text, onClick, enabled = true, type = "button", className }) {
 
 function Linker({ to, text, className }) {
     return (
-        <Link to={to} className={`text-gray-400 text-xs hover:underline cursor-pointer ${className}`}>{text}</Link>
+        <Link to={to} className={`text-xs hover:underline cursor-pointer ${className}`}>{text}</Link>
     )
 }
 
@@ -96,7 +96,7 @@ function Alert({ children, menuRef, conditionals, actions, events}) {
 
     return (
         <div className="fixed inset-0 flex justify-center items-center w-full h-full z-20 bg-black/20"> 
-            <div ref={menuRef} className="bg-[var(--color-primary)] rounded-lg p-2">
+            <div ref={menuRef} className="bg-(--color-primary) rounded-lg p-2">
                 {children}
             </div>
         </div>

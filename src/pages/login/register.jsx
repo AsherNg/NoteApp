@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { InputField, Button, Linker } from "./../../components/form.jsx";
+import { InputField, Button, Linker } from "./../../components/Form.jsx";
 import supabase from "./../../supabaseClient.jsx"
 import aginoteLogoOnly from './../../assets/aginoteLogoOnly.png';
 import { useNavigate } from 'react-router-dom';

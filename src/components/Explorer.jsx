@@ -13,11 +13,11 @@ const Explorer = ({ open, treeVersion, activeTab, setActiveTab, setOpenTabs }) =
     }, [treeVersion]);
 
     return (
-        <div className={`h-screen w-100 bg-(--color-primary) text-(--color-text) ${ open ? "block" : "hidden"}`}>
+        <div className={`h-screen w-100 bg-(--color-primary) text-(--color-text) overflow-hidden whitespace-nowrap ${ open ? "block" : "hidden"}`}>
             <nav className="flex flex-col">
                 <div className="p-2">
                     <span className=""> Local Files </span>
-                    {data ? <Folder className="ml-2" TreeNode={data} activeTab={activeTab} setActiveTab={setActiveTab} setOpenTabs={setOpenTabs}/> : <></>}
+                    {data ? <Folder className="ml-2" TreeNode={data} activeTab={activeTab} setActiveTab={setActiveTab} setOpenTabs={setOpenTabs} indents={0}/> : <></>}
                 </div>
 
                 <hr className='mx-2'/>

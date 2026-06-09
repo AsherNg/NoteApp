@@ -2,8 +2,8 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 import { GoPlus } from "react-icons/go";
 import { useState, useEffect } from "react";
 
-const allTabs = "flex w-32 justify-between items-center px-7 py-2 border-(--color-secondary) border-1 border-l-0 cursor-pointer";
-const activeClass = allTabs + " bg-(--color-bg) border-t-(--color-accent) border-b-0";
+const allTabs = "flex w-36 justify-between items-center px-7 py-2 border-1 border-l-0 border-(--color-border) cursor-pointer";
+const activeClass = allTabs + " bg-(--color-bg) border-t-(--color-accent) border-b-(--color-bg)";
 const hoverClass = allTabs + " bg-(--color-secondary)";
 const inactiveClass = allTabs + " bg-(--color-primary)";
 
@@ -48,7 +48,7 @@ const Navbar = ({openTabs, setOpenTabs, activeTab, setActiveTab}) => {
     }
 
     return (
-        <div className="flex w-full bg-(--color-primary)">
+        <div className="flex h-[42px] w-full bg-(--color-primary)">
             <ul className="flex justify-start items-center">
                 {
                     openTabs.map(tab => (
@@ -63,7 +63,7 @@ const Navbar = ({openTabs, setOpenTabs, activeTab, setActiveTab}) => {
                         />
                     ))
                 }
-                <li><GoPlus size={40} className="text-(--color-text) hover:text-(--color-hover) cursor-pointer" onClick={newTab}/></li>
+                <li><GoPlus size={16} className="mx-2 text-(--color-text) hover:text-(--color-hover) cursor-pointer" onClick={newTab}/></li>
             </ul>
         </div> 
     )
