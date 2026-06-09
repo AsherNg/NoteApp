@@ -13,6 +13,19 @@
   --color-active: var(--active);
   --color-accent: var(--accent);
   --color-accentHover: var(--accentHover);
+  --color-codeblock: var(--codeblock);
+  --color-tagKeyword: var(--tagKeyword);
+  --color-tagComment: var(--tagComment);
+  --color-tagString: var(--tagString);
+  --color-tagNumber: var(--tagNumber);
+  --color-tagVariable: var(--tagVariable);
+  --color-tagFunction: var(--tagFunction);
+  --color-heading1: var(--heading1);
+  --color-heading2: var(--heading2);
+  --color-heading3: var(--heading3);
+  --color-heading4: var(--heading4);
+  --color-heading5: var(--heading5);
+  --color-heading6: var(--heading6);
 }
 
 @layer theme {
@@ -28,23 +41,85 @@
     --active: #e2e2e2;
     --accent: #aee7cb;
     --accentHover: #90c9ad; 
+    --codeblock: #1a1a1a;
+    --tagKeyword: #c586C0;
+    --tagComment: #6a9955;
+    --tagString: #ce9178;
+    --tagNumber: #b5cea8;
+    --tagVariable: #9cdcfe;
+    --tagFunction: #dcdcaa;
+    --heading1: #F8F9FA;
+    --heading2: #E9ECEF;
+    --heading3: #DEE2E6;
+    --heading4: #6C757D;
+    --heading5: #6C757D;
+    --heading6: #6C757D;
   }
 
   [data-theme="Light"] {
     --primary: #ffffff;
-    --secondary: #f3f3f3;
+    --secondary: #e1e1e1;
     --tertiary: #303030;
     --border: #d6d6d6;
-    --bg: #F9FAFB ;
-    --text: #4B5563;
+    --bg: #f9fafb ;
+    --text: #4b5563;
     --icon: #a3a3a3;
     --hover: #696969;
     --active: #40444a;
     --accent: #aee7cb;
     --accentHover: #90c9ad; 
+    --codeblock: #ffffff;
+    --tagKeyword: #c586C0;
+    --tagComment: #6a9955;
+    --tagString: #ce9178;
+    --tagNumber: #b5cea8;
+    --tagVariable: #6daacb;
+    --tagFunction: #b0b065;
+    --heading1: #000000;
+    --heading2: #141414;
+    --heading3: #292929;
+    --heading4: #6C757D;
+    --heading5: #6C757D;
+    --heading6: #6C757D;
   }
 }
 
 body {
   margin: 0;
+}
+
+.editorTheme .cm-activeLine {
+  @apply bg-(--color-secondary) caret-(--color-text);;
+}
+
+.editorTheme .cm-codeblock-line {
+  @apply border-l-2 border-l-(--color-accent);
+}
+
+.editorTheme .cm-codeblock-line:not(.cm-activeLine) {
+  @apply bg-(--color-codeblock);
+}
+
+.editorTheme .cm-heading-1 {
+  @apply text-(--color-heading1);
+}
+
+.editorTheme .cm-heading-2 {
+  @apply text-(--color-heading2);
+}
+
+.editorTheme .cm-heading-3 {
+  @apply text-(--color-heading3);
+}
+
+.editorTheme .cm-heading-4 {
+  @apply text-(--color-heading4);
+}
+
+.editorTheme .cm-heading-5 {
+  @apply text-(--color-heading5);
+}
+
+.editorTheme .cm-heading-6 {
+  @apply text-(--color-heading6);
 }

@@ -6,7 +6,7 @@ import { PiGear } from "react-icons/pi";
 import Tooltip from "./Tooltip";
 import { useState } from "react";
 
-const Sidebar = ({setOpenExplorer, setOpenAccount, setOpenSettings})  => {
+const Sidebar = ({setOpenExplorer, setOpenPrint, setOpenAccount, setOpenSettings})  => {
     return (
         <>
             <aside className="flex flex-col bg-(--color-primary) h-screen border-r-2 border-(--color-border)">
@@ -23,9 +23,11 @@ const Sidebar = ({setOpenExplorer, setOpenAccount, setOpenSettings})  => {
                                 <PiFolders size={32} className="text-(--color-icon) group-hover:text-(--color-hover)"/>
                             </li>
                         </Tooltip>
-                        <li className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
-                            <PiFilePdf size={32} className="text-(--color-icon) group-hover:text-(--color-hover)"/>
-                        </li>
+                        <Tooltip text="Print">
+                            <li onClick={() => setOpenPrint()} className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
+                                <PiFilePdf size={32} className="text-(--color-icon) group-hover:text-(--color-hover)"/>
+                            </li>
+                        </Tooltip>
                         <li className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer">
                             <PiFilePdf size={32} className="text-(--color-icon)"/>
                         </li>

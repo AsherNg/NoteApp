@@ -9,12 +9,12 @@ import { markdown } from "@codemirror/lang-markdown";
 import { languages } from "@codemirror/language-data";
 
 const editorHighlightStyle = HighlightStyle.define([
-    { tag: tags.keyword, color:"#C586C0" },
-    { tag: tags.comment, color:"#6A9955" },
-    { tag: tags.string, color:"#CE9178" },
-    { tag: tags.number, color:"#B5CEA8" },
-    { tag: tags.variableName, color:"#9CDCFE" },
-    { tag: tags.function(tags.variableName), color:"#DCDCAA" },
+    { tag: tags.keyword, class: "text-(--color-tagKeyword)" },
+    { tag: tags.comment, class: "text-(--color-tagComment)" },
+    { tag: tags.string, class: "text-(--color-tagString)" },
+    { tag: tags.number, class: "text-(--color-tagNumber)" },
+    { tag: tags.variableName, class: "text-(--color-tagVariable)" },
+    { tag: tags.function(tags.variableName), class: "text-(--color-tagFunction)" },
 ])
 
 const headingPlugin = ViewPlugin.fromClass(class {
@@ -49,14 +49,13 @@ const headingPlugin = ViewPlugin.fromClass(class {
                 }
 
                 const sizes = { 1: "3em", 2: "2.6em", 3: "2.2em", 4: "1.8em", 5: "1.4em", 6: "1.1em"};
-                const colors = { 1: "#F8F9FA", 2: "#E9ECEF", 3: "#DEE2E6", 4: "#6C757D", 5:"#6C757D", 6: "#6C757D"}
 
                 builder.add(
                     node.from,
                     node.to,
                     Decoration.mark({
                         class: `cm-heading cm-heading-${level}`,
-                        attributes: { style: `font-size: ${sizes[level]}; color: ${colors[level]}; font-weight: bold` }
+                        attributes: { style: `font-size: ${sizes[level]}; font-weight: bold` }
                     })
                 )
             }
@@ -115,41 +114,35 @@ const codeBlockPlugin = ViewPlugin.fromClass(class {
     }
 }, { decorations: v => v.decorations });
 
-const Editor = ({path, tabId, activeTab}) => {
+const getEditorContents = () => {
+    return EditorView.state.doc.toString();
+}
+
+const Editor = ({ viewRefs, path, tabId, activeTab }) => {
     const editorParent = useRef(null);
     let saveTimer = useRef(null);
 
     const editorTheme = EditorView.theme({
-        "&": {
-            height: "100%",
+        "&.cm-editor": {
+            width: "80%",
         },
         "&.cm-focused": {
             outline: "none"
         },
         ".cm-scroller": {
-            overflow: "auto"
+            overflow: "visible"
         },
         ".cm-gutters": {
             background: "none",
             border: "none",
             marginRight: "10px"
-        },
-        ".cm-codeblock-line": {
-            backgroundColor: "#1a1a1a",
-            borderLeft: "2px solid #aee7cb"
-        },
-        ".cm-activeLine": {
-            backgroundColor: "#242424"
-        },
-        ".cm-cursor": {
-            borderLeftColor: "#8f8f8f"
-        },
-    }, { dark: true });
+        }
+    });
 
     //console.log('Editor path:', path, 'tabId:', tabId, 'activeTab:', activeTab);
     const viewRef = useRef(null);
     useEffect(() => {
-        console.log('useEffect fired, path:', path);
+        //console.log('useEffect fired, path:', path);
         if (!editorParent.current) return;
         editorParent.current.innerHTML = '';
         viewRef.current?.destroy();
@@ -173,6 +166,7 @@ const Editor = ({path, tabId, activeTab}) => {
                 doc: doc,
                 extensions: [
                     editorTheme,
+                    EditorView.editorAttributes.of({ class: "editorTheme" }),
                     keymap.of([defaultKeymap, indentWithTab, historyKeymap, closeBracketsKeymap]),
                     //lineNumbers(),
                     highlightActiveLine(),
@@ -201,17 +195,20 @@ const Editor = ({path, tabId, activeTab}) => {
             })
             viewRef.current = new EditorView({ state, parent: editorParent.current });
         }
+
         init();
+        viewRefs.current.set(tabId, viewRef);
+
         return () => {
             cancelled = true;
             clearTimeout(saveTimer.current);
             viewRef.current?.destroy();
-            viewRef.current = null;
+            viewRefs.current.delete(tabId);
         };
     }, [path]);
 
     return (
-        <div ref={editorParent} className={`grow-1 max-w-2xl overflow-hidden my-10 mx-10 text-(--color-text) ${tabId === activeTab ? '' : 'hidden'}`}>
+        <div ref={editorParent} className={`w-full flex scrollbar-gutter-stable scrollbar-thumb-(--color-secondary) scrollbar-track-transparent justify-center overflow-auto my-10 px-10 text-(--color-text) ${tabId === activeTab ? '' : 'hidden'}`}>
         </div>
     );
 }
