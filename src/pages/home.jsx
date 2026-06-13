@@ -73,7 +73,7 @@ function ScreenHelper({activeTab, openTabs, setOpenTabs, screens, tabId, onRight
                         setTabMenu(true);
                     }}
                 />
-                {tabMenu && <ContextMenu 
+                {tabMenu && <ContextMenu bgColor="(--color-secondary)"
                     x={menuPos.x} y={menuPos.y} onClose={() => setTabMenu(false)} align="right"
                     items={[
                         {id: 1, name: "Split Right", onClick: ((e) => {e.stopPropagation(); onRightSplit()})},

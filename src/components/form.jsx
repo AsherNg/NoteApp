@@ -52,7 +52,7 @@ function Linker({ to, text, className }) {
     )
 }
 
-function ContextMenu({ x, y, onClose, items, align="left"}) {
+function ContextMenu({ x, y, onClose, items, align="left", bgColor="[var(--color-bg)]"}) {
     const [hoverField, setHoverField] = useState('');
     const [pos, setPos] = useState({ top: y, left: x })
     const onHover = (id) => {setHoverField(id)}
@@ -62,7 +62,7 @@ function ContextMenu({ x, y, onClose, items, align="left"}) {
         if (menuRef.current) {
             const width = menuRef.current.offsetWidth;
             setPos({
-                top: y,
+                top: y - 2,
                 left: align === "right" ? x - width : x
             });
         }
@@ -80,11 +80,11 @@ function ContextMenu({ x, y, onClose, items, align="left"}) {
     }, []);
 
     return (
-        <div ref={menuRef} className="fixed rounded-lg bg-[var(--color-bg)] z-50 p-1" style={{ top: pos.top, left: pos.left }}>
+        <div ref={menuRef} className={`fixed rounded-lg bg-${bgColor} z-50 p-1`} style={{ top: pos.top, left: pos.left }}>
             <ul className="list-none flex flex-col gap-1">
             {
                 items.map((item) => (
-                    <li key={item.id} className={hoverField === item.id ? "rounded text-sm bg-[var(--color-primary)] text-[var(--color-text)]" : " rounded text-sm bg-[var(--color-bg)] text-[var(--color-text)]"} onMouseOver={() => onHover(item.id)} onClick={item.onClick} onMouseLeave={() => onHover('')}>
+                    <li key={item.id} className={hoverField === item.id ? "rounded text-sm bg-[var(--color-primary)] text-[var(--color-text)]" : ` rounded text-sm bg-${bgColor} text-[var(--color-text)]`} onMouseOver={() => onHover(item.id)} onClick={item.onClick} onMouseLeave={() => onHover('')}>
                         {item.name}
                     </li>
                 ))

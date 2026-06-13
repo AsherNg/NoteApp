@@ -10,14 +10,16 @@ const inactiveClass = allTabs + " bg-(--color-primary)";
 const tabNameHelper = (activeScreenId, screen) => {
     if (screen.screenId === activeScreenId) {
         return screen.path;
-    } else if (screen.displayType === "file") {
+    } 
+    if (screen.displayType === "file") {
         return undefined;
     }
-    let retPath;
-    for (let i = 0; i < screen.length; i++) {
-        let possibleStr = tabNameHelper(activeScreenId, screen[i]);
-        if (possibleStr !== undefined) {
-            return possibleStr;
+    if (screen.displays) {
+        for (let i = 0; i < screen.displays.length; i++) {
+            let possibleStr = tabNameHelper(activeScreenId, screen.displays[i]);
+            if (possibleStr !== undefined) {
+                return possibleStr;
+            }
         }
     }
     return undefined;
