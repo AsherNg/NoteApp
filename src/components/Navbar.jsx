@@ -7,42 +7,73 @@ const activeClass = allTabs + " bg-(--color-bg) border-t-(--color-accent) border
 const hoverClass = allTabs + " bg-(--color-secondary)";
 const inactiveClass = allTabs + " bg-(--color-primary)";
 
-const Tab = ({fileItem, hoverTab, setHoverTab, activeTab, setActiveTab, closeTab}) => {
+const tabNameHelper = (activeScreenId, screen) => {
+    if (screen.screenId === activeScreenId) {
+        return screen.path;
+    } else if (screen.displayType === "file") {
+        return undefined;
+    }
+    let retPath;
+    for (let i = 0; i < screen.length; i++) {
+        let possibleStr = tabNameHelper(activeScreenId, screen[i]);
+        if (possibleStr !== undefined) {
+            return possibleStr;
+        }
+    }
+    return undefined;
+}
+
+const tabName = (tab) => {
+    if (tab.noOfTabs === 1) {
+        return tab.screens.path;
+    } else {
+        return tabNameHelper(tab.activeScreen, tab.screens);
+    }
+}
+
+const Tab = ({tab, hoverTab, setHoverTab, activeTab, setActiveTab, closeTab}) => {
+    let path = tabName(tab);
     return (
-        <li id={fileItem.id} className={activeTab?.id === fileItem.id ? activeClass : hoverTab?.id === fileItem.id ? hoverClass : inactiveClass} onMouseOver={() => setHoverTab(fileItem)} onMouseLeave={() => setHoverTab(null)} onClick={() => setActiveTab(fileItem)}>
+        <li id={tab.tabId} className={activeTab === tab.tabId ? activeClass : hoverTab === tab.tabId ? hoverClass : inactiveClass} onMouseOver={() => setHoverTab(tab.tabId)} onMouseLeave={() => setHoverTab('')} onClick={() => setActiveTab(tab.tabId)}>
             <div className="text-base text-ellipsis text-(--color-text) overflow-hidden whitespace-nowrap">
-                {fileItem.path !== null ? fileItem.path.split(/[\\/]/).pop() : "New Tab"}
+                {path != null ? path.split(/[\\/]/).pop() : "New Tab"}
             </div>
-            {(activeTab?.id === fileItem.id || hoverTab?.id === fileItem.id) && <IoCloseCircleOutline size={16} className="text-(--color-text) hover:text-(--color-hover) cursor-pointer" onClick={(e) => {e.stopPropagation(); closeTab(fileItem.id)}}/>}
+            {(activeTab === tab.tabId || hoverTab === tab.tabId) && <IoCloseCircleOutline size={16} className="text-(--color-text) hover:text-(--color-hover) cursor-pointer" onClick={(e) => {e.stopPropagation(); closeTab(tab.tabId)}}/>}
         </li>
     )
 }
 
 const Navbar = ({openTabs, setOpenTabs, activeTab, setActiveTab}) => {
-    const [hoverTab, setHoverTab] = useState(null);
+    const [hoverTab, setHoverTab] = useState('');
 
     useEffect(() => {
-        localStorage.setItem("activeTab", JSON.stringify(activeTab));
+        localStorage.setItem("activeTab", activeTab);
         localStorage.setItem("openTabs", JSON.stringify(openTabs));
     }, [openTabs, activeTab]);
 
     function newTab() {
-        const blankTab = {id: crypto.randomUUID(), path: null}
-        setOpenTabs(prev => [...prev, blankTab]);
-        setActiveTab(blankTab);
+        const blankTabsId = crypto.randomUUID();
+        const blankTab = {
+            tabId: crypto.randomUUID(), noOfTabs: 1, activeScreen: blankTabsId,
+            screens: {
+                screenId: blankTabsId, displayType: "file", path: null
+            }
+        }
+        setOpenTabs(prev => [ ...prev, blankTab ]);
+        setActiveTab(blankTab.tabId);
     }
 
     function closeTab(tabId) {
-        let tmp = openTabs.findIndex(item => item.id === tabId);
-        const updated = openTabs.filter(item => item.id !== tabId);
+        let tmp = openTabs.findIndex(item => item.tabId === tabId);
+        const updated = openTabs.filter(item => item.tabId !== tabId);
         setOpenTabs(updated);
         if (updated.length === 0) {
             newTab();
         } else {
             if (tmp === updated.length) {
-                setActiveTab(updated[tmp-1]);
+                setActiveTab(updated[tmp-1].tabId);
             } else {
-                setActiveTab(updated[tmp]);
+                setActiveTab(updated[tmp].tabId);
             }
         }
     }
@@ -53,8 +84,8 @@ const Navbar = ({openTabs, setOpenTabs, activeTab, setActiveTab}) => {
                 {
                     openTabs.map(tab => (
                         <Tab
-                            key={tab.id}
-                            fileItem={tab}
+                            key={tab.tabId}
+                            tab={tab}
                             hoverTab={hoverTab}
                             setHoverTab={setHoverTab}
                             activeTab={activeTab}

@@ -49,6 +49,16 @@ ipcMain.handle('init-folder', async (event) => {
     }
 });
 
+ipcMain.handle('check-exists', async (event, path) => {
+    try {
+        await fs.promises.access(path);
+        return true;
+    } catch (err) {
+        console.error("No path found or error: ", err);
+        return false;
+    }
+})
+
 ipcMain.handle('is-folder', async (event, path) => {
     try {
         const stats = await fs.promises.stat(path);
@@ -126,6 +136,16 @@ ipcMain.handle('rename', async (event, oldPath, newPath) => {
         throw error;
     }
 });
+
+ipcMain.handle('copy', async (event, src, dest) => {
+    try {
+        await fs.promises.cp(src, dest, {recursive: true});
+        return true;
+    } catch (err) {
+        console.error("Failed to copy: ", err);
+        throw err;
+    }
+})
 
 app.whenReady().then(() => {
   createWindow();
