@@ -59,13 +59,13 @@ const Folder = ({ TreeNode, activeTab, setActiveTab, setOpenTabs, indents }) => 
                             : tab
                     ))
                 }
-            }>
-                <span onContextMenu={
+            } onContextMenu={
                     (e) => {
                         e.preventDefault();
                         setContextMenu({visible: true, x:e.clientX, y:e.clientY})
                     }
-                } className="w-full">{TreeNode.name}</span>
+                }>
+                <span className="w-full">{TreeNode.name}</span>
                 {contextMenu.visible && (<ContextMenu x={contextMenu.x} y={contextMenu.y} onClose={() => {setContextMenu({ visible: false, x: 0, y: 0})}} items={
                     [
                         {id: 1, name: "Delete Note", onClick: (() => deleteFile(TreeNode.path))},

@@ -151,11 +151,10 @@ function Home() {
                         <span className="font-bold text-(--color-hover)">Export to PDF</span>
                         <IoClose size={24} onClick={() => setOpenPrint(false)} className="cursor-pointer hover:text-(--color-hover)"/>
                     </div>
-                    <div className="flex flex-row mt-3 grow">
+                    <div className="border-1 border-(--color-border) w-full my-3"></div>
+                    <div className="flex flex-row my-3 grow">
                         <PrintPreview markdown={markdown}/>
-                        <div className="p-3 flex flex-col justify-end grow h-full">
-                            <Button text="Print"></Button>
-                        </div>
+                        
                     </div>
                 </div>
             </Modal>
@@ -166,6 +165,7 @@ function Home() {
                         <span className="font-bold text-(--color-hover)">Account</span>
                         <IoClose size={24} onClick={() => setOpenAccount(false)} className="cursor-pointer hover:text-(--color-hover)"/>
                     </div>
+                    <div className="border-1 border-(--color-border) w-full my-3"></div>
                     <div className="flex flex-row w-full">
                         <Button text="Sign Out" onClick={handleSignOut} enabled="true" type="button"></Button>
                     </div>
