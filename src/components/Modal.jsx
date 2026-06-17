@@ -13,7 +13,7 @@ const Modal = ({ children, isOpen }) => {
     if (!isOpen) return null;
     
     return (
-        <div className="flex justify-center items-center fixed w-screen h-screen bg-black/70">
+        <div className=" z-20 flex justify-center items-center fixed w-screen h-screen bg-black/70">
             {children}
         </div>
     )

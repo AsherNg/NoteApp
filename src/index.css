@@ -13,6 +13,8 @@
   --color-active: var(--active);
   --color-accent: var(--accent);
   --color-accentHover: var(--accentHover);
+  --color-danger: var(--danger);
+  --color-dangerHover: var(--dangerHover);
   --color-codeblock: var(--codeblock);
   --color-tagKeyword: var(--tagKeyword);
   --color-tagComment: var(--tagComment);
@@ -40,7 +42,9 @@
     --hover: #e2e2e2;
     --active: #e2e2e2;
     --accent: #aee7cb;
-    --accentHover: #90c9ad; 
+    --accentHover: #90c9ad;
+    --danger: #e7aeae;
+    --dangerHover: #c99090;
     --codeblock: #1a1a1a;
     --tagKeyword: #c586C0;
     --tagComment: #6a9955;
@@ -68,6 +72,8 @@
     --active: #40444a;
     --accent: #aee7cb;
     --accentHover: #90c9ad; 
+    --danger: #e7aeae;
+    --dangerHover: #c99090;
     --codeblock: #ffffff;
     --tagKeyword: #c586C0;
     --tagComment: #6a9955;

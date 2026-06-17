@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 function InputField({ id, label, type, value, setter, error, onFocus, onBlur, isFocused, example }) {
@@ -52,10 +52,21 @@ function Linker({ to, text, className }) {
     )
 }
 
-function ContextMenu({ x, y, onClose, items}) {
+function ContextMenu({ x, y, onClose, items, align="left", bgColor="[var(--color-bg)]"}) {
     const [hoverField, setHoverField] = useState('');
+    const [pos, setPos] = useState({ top: y, left: x })
     const onHover = (id) => {setHoverField(id)}
     const menuRef = useRef(null);
+
+    useLayoutEffect(() => {
+        if (menuRef.current) {
+            const width = menuRef.current.offsetWidth;
+            setPos({
+                top: y - 2,
+                left: align === "right" ? x - width : x
+            });
+        }
+    }, [x, y, align]);
 
     useEffect(() => {
         function handleOpen(e) {
@@ -69,11 +80,11 @@ function ContextMenu({ x, y, onClose, items}) {
     }, []);
 
     return (
-        <div ref={menuRef} className="fixed rounded-lg bg-[var(--color-primary)] z-50 p-1" style={{ top: y, left: x }}>
-            <ul className="list-none">
+        <div ref={menuRef} className={`fixed rounded-lg bg-${bgColor} z-50 p-1`} style={{ top: pos.top, left: pos.left }}>
+            <ul className="list-none flex flex-col gap-1">
             {
                 items.map((item) => (
-                    <li key={item.id} className={hoverField === item.id ? "text-sm bg-[var(--color-secondary)] text-[var(--color-text)]" : "text-sm bg-[var(--color-primary)] text-[var(--color-text)]"} onMouseOver={() => onHover(item.id)} onClick={item.onClick} onMouseLeave={() => onHover('')}>
+                    <li key={item.id} className={hoverField === item.id ? "rounded text-sm bg-[var(--color-primary)] text-[var(--color-text)]" : ` rounded text-sm bg-${bgColor} text-[var(--color-text)]`} onMouseOver={() => onHover(item.id)} onClick={item.onClick} onMouseLeave={() => onHover('')}>
                         {item.name}
                     </li>
                 ))
@@ -92,7 +103,7 @@ function Alert({ children, menuRef, conditionals, actions, events}) {
         }
         events.forEach(event => document.addEventListener(event, handleEvent));
         return () => events.forEach(event => document.removeEventListener(event, handleEvent));
-    }, []);
+    });
 
     return (
         <div className="fixed inset-0 flex justify-center items-center w-full h-full z-20 bg-black/20"> 

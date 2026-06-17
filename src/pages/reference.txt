@@ -1,0 +1,71 @@
+This is structure for local storage, 
+reading and writing into it to re-render most things in Editor
+
+openTabs = [
+    {
+        tabId: ...,
+        noOfTabs: 3,
+        activeScreen: particular screen id
+        screens: {
+            screenId: ...,
+            displayType: "h-split",
+            displays: [
+                {
+                    screenId: ...,
+                    displayType: "v-split",
+                    displays: [
+                        {
+                            screenId: ...,
+                            displayType: "file",
+                            path: ...,
+                        },
+                        {
+                            screenId: ...,
+                            displayType: "file",
+                            path: ...,
+                        }
+                    ]
+                },
+                {
+                    screenId: ...,
+                    displayType: "file",
+                    path: ...
+                },
+            ]
+        }
+    },
+    {
+        tabId: ...,
+        noOfTabs: 2,
+        activeScreen: particular screen id
+        screens: {
+            screenId: ...,
+            displayType: "v-split",
+            displays: [
+                {
+                    screenId: ...,
+                    displayType: "file",
+                    path: ...,
+                },
+                {
+                    screenId: ...,
+                    displayType: "file",
+                    path: ...,
+                },
+            ]
+        }
+    },
+    {
+        tabId: ...,
+        noOfTabs: 1,
+        activeScreen: particular screen id
+        screens: {
+            screenId: ...,
+            displayType: "file",
+            path: ...
+        }
+    },
+]
+
+activeTab = ...
+

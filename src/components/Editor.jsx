@@ -118,7 +118,7 @@ const getEditorContents = () => {
     return EditorView.state.doc.toString();
 }
 
-const Editor = ({ viewRefs, path, tabId, activeTab }) => {
+const Editor = ({ viewRefs, path, tabId, screenId }) => {
     const editorParent = useRef(null);
     let saveTimer = useRef(null);
 
@@ -198,17 +198,19 @@ const Editor = ({ viewRefs, path, tabId, activeTab }) => {
 
         init();
         viewRefs.current.set(tabId, viewRef);
+        viewRefs.current.set(screenId, viewRef);
 
         return () => {
             cancelled = true;
             clearTimeout(saveTimer.current);
             viewRef.current?.destroy();
             viewRefs.current.delete(tabId);
+            viewRefs.current.delete(screenId);
         };
     }, [path]);
 
     return (
-        <div ref={editorParent} className={`w-full flex scrollbar-gutter-stable scrollbar-thumb-(--color-secondary) scrollbar-track-transparent justify-center overflow-auto my-10 px-10 text-(--color-text) ${tabId === activeTab ? '' : 'hidden'}`}>
+        <div ref={editorParent} className={`w-full flex scrollbar-gutter-stable scrollbar-thumb-(--color-secondary) scrollbar-track-transparent justify-center overflow-auto my-10 px-10 text-(--color-text)`}>
         </div>
     );
 }
