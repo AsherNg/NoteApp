@@ -1,12 +1,9 @@
 import aginoteLogoOnly from "../assets/aginoteLogoOnly.png";
-import { PiUserCircle } from "react-icons/pi";
-import { PiFolders } from "react-icons/pi";
-import { PiFilePdf } from "react-icons/pi";
-import { PiGear } from "react-icons/pi";
+import { PiUserCircle, PiFolders, PiFilePdf, PiGear, PiChats } from "react-icons/pi";
 import Tooltip from "./Tooltip";
 import { useState } from "react";
 
-const Sidebar = ({setOpenExplorer, setOpenPrint, setOpenAccount, setOpenSettings})  => {
+const Sidebar = ({setOpenExplorer, setOpenPrint, setOpenChat, setOpenAccount, setOpenSettings})  => {
     return (
         <>
             <aside className="flex flex-col bg-(--color-primary) h-screen border-r-2 border-(--color-border)">
@@ -28,9 +25,11 @@ const Sidebar = ({setOpenExplorer, setOpenPrint, setOpenAccount, setOpenSettings
                                 <PiFilePdf size={32} className="text-(--color-icon) group-hover:text-(--color-hover)"/>
                             </li>
                         </Tooltip>
-                        <li className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer">
-                            <PiFilePdf size={32} className="text-(--color-icon)"/>
-                        </li>
+                        <Tooltip text="Chat">
+                            <li onClick={() => setOpenChat()} className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer">
+                                <PiChats size={32} className="text-(--color-icon)"/>
+                            </li>
+                        </Tooltip>
                         <li className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer">
                             <PiFilePdf size={32} className="text-(--color-icon)"/>
                         </li>

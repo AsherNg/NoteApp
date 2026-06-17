@@ -1,7 +1,8 @@
-import Sidebar from '../components/Sidebar'
-import Explorer from '../components/Explorer';
-import Editor from '../components/Editor'
-import Navbar from '../components/Navbar'
+import Sidebar from '../components/Sidebar.jsx'
+import Explorer from '../components/Explorer.jsx';
+import Editor from '../components/Editor.jsx'
+import Navbar from '../components/Navbar.jsx'
+import Chat from '../components/Chat.jsx';
 import Modal from '../components/Modal.jsx';
 import Dropdown from '../components/Dropdown.jsx';
 import PrintPreview from '../components/PrintPreview.jsx';
@@ -108,6 +109,7 @@ function Home() {
     // States to handle opening of menus
     const [openExplorer, setOpenExplorer] = useState(false);
     const [openPrint, setOpenPrint] = useState(false);
+    const [openChat, setOpenChat] = useState(false);
     const [openAccount, setOpenAccount] = useState(false);
     const [openSettings, setOpenSettings] = useState(false);
 
@@ -321,7 +323,7 @@ function Home() {
                 const content = viewRefs.current.get(tab?.activeScreen)?.current.state.doc.toString() ?? "";
                 setMarkdown(content);
                 setOpenPrint(true);
-                }} setOpenAccount={() => setOpenAccount(true)} setOpenSettings={() => setOpenSettings(true)}/>
+                }} setOpenChat={() => setOpenChat(!openChat)} setOpenAccount={() => setOpenAccount(true)} setOpenSettings={() => setOpenSettings(true)}/>
             <Explorer open={openExplorer} treeVersion={treeVersion} activeTab={activeTab} setActiveTab={setActiveTab} openTabs={openTabs} setOpenTabs={setOpenTabs} setTreeVersion={setTreeVersion} />
             <div className='grow h-screen flex flex-col'>
                 <Navbar openTabs={openTabs} setOpenTabs={setOpenTabs} activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -336,6 +338,8 @@ function Home() {
                     }
                 </div>
             </div>
+
+            <Chat open={openChat} closeChat={() => setOpenChat(false)}/>
 
             <Modal isOpen={openPrint}>
                 <div className="w-3xl h-[80%] bg-(--color-bg) rounded-lg p-10 text-(--color-text) flex flex-col">

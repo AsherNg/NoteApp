@@ -10,9 +10,16 @@ const createWindow = () => {
     minWidth: 600,
     minHeight: 800,
     webPreferences: {
-        preload:path.join(__dirname, 'preload.cjs'),
+        preload: path.join(__dirname, 'preload.cjs'),
+        nodeIntegration: false,
+        contextIsolation: true,
     },
   });
+
+    // Allow anthropic API calls from renderer
+    win.webContents.session.webRequest.onBeforeSendHeaders((details, callback) => {
+        callback({ requestHeaders: { ...details.requestHeaders } });
+    });
     win.loadURL('http://localhost:5173');
 }
 

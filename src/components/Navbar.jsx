@@ -81,7 +81,7 @@ const Navbar = ({openTabs, setOpenTabs, activeTab, setActiveTab}) => {
     }
 
     return (
-        <div className="flex h-[42px] w-full bg-(--color-primary)">
+        <div className="flex h-[42px] bg-(--color-primary) overflow-x-auto">
             <ul className="flex justify-start items-center">
                 {
                     openTabs.map(tab => (
