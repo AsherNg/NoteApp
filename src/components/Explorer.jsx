@@ -14,7 +14,7 @@ const Explorer = ({ open, treeVersion, activeTab, setActiveTab, openTabs, setOpe
     }, [treeVersion]);
 
     return (
-        <div className={`h-screen w-100 bg-(--color-primary) text-(--color-text) overflow-hidden whitespace-nowrap ${ open ? "block" : "hidden"}`}>
+        <div className={`h-screen w-80 bg-(--color-primary) text-(--color-text) overflow-hidden whitespace-nowrap ${ open ? "block" : "hidden"}`}>
             <nav className="flex flex-col">
                 <div className="p-2">
                     <span className=""> Local Files </span>

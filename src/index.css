@@ -62,8 +62,8 @@
 
   [data-theme="Light"] {
     --primary: #ffffff;
-    --secondary: #e1e1e1;
-    --tertiary: #303030;
+    --secondary: #e7e7e7;
+    --tertiary: #d4d4d4;
     --border: #d6d6d6;
     --bg: #f9fafb ;
     --text: #4b5563;
@@ -88,6 +88,34 @@
     --heading5: #6C757D;
     --heading6: #6C757D;
   }
+
+  [data-theme="Custom"] {
+    --primary: #1b1b1b;
+    --secondary: #242424;
+    --tertiary: #303030;
+    --border: #454545;
+    --bg: #101010;
+    --text: #8f8f8f;
+    --icon: #8f8f8f; 
+    --hover: #e2e2e2;
+    --active: #e2e2e2;
+    --accent: #aee7cb;
+    --accentHover: #90c9ad; 
+    --codeblock: #1a1a1a;
+    --tagKeyword: #c586C0;
+    --tagComment: #6a9955;
+    --tagString: #ce9178;
+    --tagNumber: #b5cea8;
+    --tagVariable: #9cdcfe;
+    --tagFunction: #dcdcaa;
+    --heading1: #F8F9FA;
+    --heading2: #E9ECEF;
+    --heading3: #DEE2E6;
+    --heading4: #6C757D;
+    --heading5: #6C757D;
+    --heading6: #6C757D;
+  }
+
 }
 
 body {

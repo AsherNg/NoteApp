@@ -7,7 +7,7 @@ const PrintPreview = ({ markdown }) => {
     console.log("Html: ", html);
 
     return (
-        <div className="bg-white aspect-[1/1.414] h-full p-2 text-sm text-black overflow-hidden" dangerouslySetInnerHTML={{ __html: html }}/>
+        <div className="bg-white aspect-[1/1.414] h-[65%] p-3 text-[8px] text-black overflow-hidden" dangerouslySetInnerHTML={{ __html: html }}/>
     )
 }
 
