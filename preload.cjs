@@ -12,5 +12,6 @@ contextBridge.exposeInMainWorld('fileApi', {
     createFile: (filePath) => ipcRenderer.invoke('create-file', filePath),
     rename: (oldPath, newPath) => ipcRenderer.invoke('rename', oldPath, newPath),
     readFolder: (dirPath) => ipcRenderer.invoke('read-folder', dirPath),
-    copy: (src, dest) => ipcRenderer.invoke('copy', src, dest)
+    copy: (src, dest) => ipcRenderer.invoke('copy', src, dest),
+    readTheme: (name) => ipcRenderer.invoke('read-theme', name),
 });
