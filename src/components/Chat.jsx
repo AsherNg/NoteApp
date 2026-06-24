@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { IoClose } from "react-icons/io5";
+import { IoAdd, IoChevronDown, IoClose, IoTrash } from "react-icons/io5";
 import supabase from "../supabaseClient";
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: "AQ.Ab8RN6JPOQgAAgdJHJF0NCuHMsjimhngzFXJ9Uw_znm8jj6qwQ" });
+const key = import.meta.env.VITE_CHATBOT_APIKEY;
+const ai = new GoogleGenAI({ apiKey: key });
 
 async function getUserId() {
     const { data: {user} } = await supabase.auth.getUser();
@@ -91,13 +92,41 @@ async function callChat(chat, messages) {
 const MessageBubble = ({ role, content }) => {
     const isUser = role === "user";
     return (
-        <div className={`flex ${isUser ? "flex-row-reverse" : "flex-row"}`}>
-            <div>
-                {isUser ? "U" : "A"}
-            </div>
-            <div>
+        <div className={`flex items-between my-1 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+            <div className={`p-3 rounded-lg leading-relaxed text-sm border-1 border-(--color-border) ${!isUser ? "bg-(--color-active) text-(--color-bg)" : "bg-(--color-secondary)"}`}>
                 {content}
             </div>
+            <div className="w-10 h-6"></div>
+        </div>
+    )
+}
+
+const ThinkingBubble = () => {
+    return (
+        <div className="flex flex-row">
+            <div className="bg-(--color-secondary) border-1 border-(--color-border) rounded-lg p-3 flex items-center">
+                {[0, 150, 300].map(delay => (
+                    <span key={delay} className="w-1 h-1 m-1 rounded-full bg-(--color-text) opacity-50 animation-bounce" style={{ animationDelay: `${delay}ms` }}/>
+                ))}
+            </div>
+        </div>
+    )
+}
+
+const ConversationList = ({ conversations, activeId, onSelect, onCreate, onDelete }) => {
+    return (
+        <div className="flex flex-col overflow-y-auto py-1">
+            <button onClick={onCreate} className="flex items-center text-xs p-2 hover:text-(--hover) cursor-pointer">
+                New Chat <IoAdd size={12} className="mx-1"/>
+            </button>
+            {conversations.map(c => (
+                <div key={c.id} onClick={() => onSelect(c.id)} className={`group flex items-center justify-between px-2 py-1.5 text-xs cursor-pointer transition-colors ${c.id === activeId ? "bg-(--color-border) text-(--color-hover)" : "text-(--color-text) hover:bg-(--color-border)"}`}>
+                    <span className="truncate flex-1">{c.title}</span>
+                    <button onClick={e => {e.stopPropagation(); onDelete(c.id);}}>
+                        <IoTrash size={12} className="hover:text-(--hover)"/>
+                    </button>
+                </div>
+            ))}
         </div>
     )
 }
@@ -115,9 +144,12 @@ const Chat = ({ open, closeChat }) => {
     const [sending, setSending] = useState(false);
     const [error, setError] = useState("");
 
+    const [showSidebar, setShowSidebar] = useState(false);
+
+    const messagesEndRef = useRef(null);
     const textareaRef = useRef(null);
 
-    const chatbot = ai.chats.create({ model: "gemini-2.5-flash" });
+    const chatbot = ai.chats.create({ model: "gemini-3.5-flash" });
 
     useEffect(() => {
         /*loadApiKey().then(k => {
@@ -141,6 +173,30 @@ const Chat = ({ open, closeChat }) => {
             setMsgLoading(false);
         });
     }, [activeConvId]);
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages, sending]);
+
+    const handleNewConversation = () => {
+        setActiveConvId(null);
+        setMessages([]);
+        setShowSidebar(false);
+    }
+    
+    const handleSelectConversation = async (id) => {
+        setActiveConvId(id);
+        setShowSidebar(false);
+    }
+
+    const handleDeleteConversation = async (id) => {
+        await deleteConversation(id);
+        setConversations(prev => prev.filter(c => c.id !== id));
+        if (activeConvId === id) {
+            setActiveConvId(null);
+            setMessages([]);
+        }
+    }
 
     const handleSend = async () => {
         const text = input.trim();
@@ -190,15 +246,37 @@ const Chat = ({ open, closeChat }) => {
 
     return (
         <div className="h-screen bg-(--color-primary) w-70 border-(--color-border) border-l-1 flex flex-col justify-between p-4 text-(--color-text)">
-            <div className="flex flex-row justify-between">
-                <span className="text-(--color-active)">Chat</span>
-                <IoClose size={24} onClick={() => closeChat()} className="cursor-pointer hover:text-(--color-hover)"/>
-            </div>
+            <div className="flex flex-col justify-start">
+                <div className="flex flex-row justify-between border-b-1 border-(--color-border) pb-2">
+                    <span className="text-(--color-active)">Chat</span>
+                    <IoClose size={24} onClick={() => closeChat()} className="cursor-pointer hover:text-(--color-hover)"/>
+                </div>
+                <div className="flex items-center my-1">
+                    <button onClick={() => setShowSidebar(s => !s)} className="flex items-center gap-1 hover:text-(--color-hover)">
+                        <span>Conversations</span>
+                        <IoChevronDown size={12} className={`transition-transform ${showSidebar ? "rotate-180" : ""}`} />
+                    </button>
+                </div>  
+                {showSidebar && (
+                    <div>
+                        <ConversationList conversations={conversations} activeId={activeConvId} onSelect={handleSelectConversation} onCreate={handleNewConversation} onDelete={handleDeleteConversation}/>
+                    </div>
+                )}
+            </div>            
 
-            <div className="overflow-y-auto">
+            
+
+            <div className="overflow-y-auto px-3 my-3 scrollbar-gutter-stable scrollbar-thumb-(--color-tertiary) scrollbar-track-transparent flex flex-col">
+                {msgLoading && (
+                    <div className="text-xs opacity-50 text-center">
+                        Loading...
+                    </div>
+                )}
                 {messages.map(m => (
                     <MessageBubble key={m.id} role={m.role} content={m.content}/>
                 ))}
+                {sending && <ThinkingBubble/>}
+                {error && <p className="text-xs text-center text-black border-1 border-(--color-border) p-3 rounded-lg bg-(--color-danger)">{error}</p>}
             </div>
 
             <div className="border-t-1 border-(--color-border) h-32 pt-3">
