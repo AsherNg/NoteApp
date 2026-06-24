@@ -386,7 +386,7 @@ function Home() {
     if (loading) return <Loading />
 
     return (
-        <div className="flex bg-[var(--color-bg)] w-screen h-screen">
+        <div className="flex bg-(--color-bg) w-screen h-screen">
         {stylesContent && (<style> {stylesContent} </style>)}
             <Sidebar setOpenExplorer={() => setOpenExplorer(!openExplorer)} setOpenPrint={() => {
                 const tab = openTabs.find(t => t.tabId === activeTab);
@@ -395,10 +395,10 @@ function Home() {
                 setOpenPrint(true);
                 }} setOpenChat={() => setOpenChat(!openChat)} setOpenAccount={() => setOpenAccount(true)} setOpenSettings={() => setOpenSettings(true)}/>
             <Explorer open={openExplorer} treeVersion={treeVersion} activeTab={activeTab} setActiveTab={setActiveTab} openTabs={openTabs} setOpenTabs={setOpenTabs} setTreeVersion={setTreeVersion} />
-            <div className='grow h-screen flex flex-col'>
+            <div className='grow w-[calc(100vh-56px)] h-screen flex flex-col'>
                 <Navbar openTabs={openTabs} setOpenTabs={setOpenTabs} activeTab={activeTab} setActiveTab={setActiveTab} />
                 {showNewNote && <NewNote homeDir={homeDir} onClose={() => setShowNewNote(false)} updateTree={refreshTree} onFileCreate={onFileCreate}/>}
-                <div className='w-full h-[calc(100vh-42px)] flex flex-col items-center'>
+                <div className='w-full h-[calc(100vh-42px)] flex flex-col items-center mt-1'>
                     {
                         openTabs.map(tab => (
                             <div key={tab.tabId} className={`p-2 w-full h-full ${tab.tabId === activeTab ? "" : "hidden"}`}>

@@ -245,7 +245,7 @@ const Chat = ({ open, closeChat }) => {
     if (!open) return null;
 
     return (
-        <div className="h-screen bg-(--color-primary) w-70 border-(--color-border) border-l-1 flex flex-col justify-between p-4 text-(--color-text)">
+        <div className="h-screen bg-(--color-primary) w-[20%] border-(--color-border) border-l-1 flex flex-col justify-between p-4 text-(--color-text)">
             <div className="flex flex-col justify-start">
                 <div className="flex flex-row justify-between border-b-1 border-(--color-border) pb-2">
                     <span className="text-(--color-active)">Chat</span>
