@@ -1,19 +1,19 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
-function InputField({ id, label, type, value, setter, error, onFocus, onBlur, isFocused, example }) {
-    const base = "text-black text-base p-2 w-md text-clip rounded-lg border-2 box-border outline-none";
+function InputField({ id, label, type, value, setter, error, onFocus, onBlur, isFocused, example, className="w-md" }) {
+    const base = `text-black text-base p-2 text-clip rounded-lg border-2 box-border outline-none ${className}`;
     const state = isFocused
-        ? "border-blue-500 bg-gray-300"
+        ? "border-(--color-accentHover) bg-(--color-bg)"
         : error
-        ? "border-red-500 bg-red-50"
-        : "border-gray-200 bg-gray-300";
+        ? "border-(--color-dangerHover) bg-(--color-danger)"
+        : "border-(--color-tertiary) bg-(--color-bg)";
 
     return (
         <div className="flex flex-col items-start justify-center">
             <div className="flex flex-row justify-start items-center gap-2">
                 <label htmlFor={id} className="my-2 text-base font-bold">{ label }</label>
-                {error && <span className="text-red-500 text-sm">{error}</span>}
+                {error && <span className="text-(--color-dangerHover) text-sm">{error}</span>}
             </div>
             <input
                 id={id}

@@ -8,20 +8,22 @@ const options = [
 ]
 */
 
-const Dropdown = ({ options, activeText }) => {
+const Dropdown = ({ options, activeText, search=false }) => { 
     const [isOpen,  setIsOpen] = useState(false);
     const [active, setActive] = useState(activeText);
+    const [hover, setHover] = useState(null);
+    const [searchField, setSearchField] = useState('');
     const dropdownRef = useRef(null);
 
     useEffect(() => {
-        function clickOustide(event) {
+        function clickOutside(event) {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setIsOpen(false);
             }
         }
 
-        document.addEventListener('mousedown', clickOustide);
-        return () => document.removeEventListener('mousedown', clickOustide);
+        document.addEventListener('mousedown', clickOutside);
+        return () => document.removeEventListener('mousedown', clickOutside);
     }, []);
 
     const selectOption = (option) => {
@@ -31,23 +33,30 @@ const Dropdown = ({ options, activeText }) => {
     }
 
     return (
-        <div className="relative w-25" ref={dropdownRef}>
-            <button onClick={() => setIsOpen(!isOpen)} className="border-1 border-(--color-text) rounded-sm p-2 w-full text-(--color-active) cursor-pointer">
+        <div className="relative w-48 p-2" ref={dropdownRef}>
+            <button onClick={() => setIsOpen(!isOpen)} className="border-1 border-(--color-text) p-2 rounded-sm w-full text-(--color-active) cursor-pointer flex justify-start items-center ">
                 <span>{activeText}</span>
                 <span className="transition-transform"> ▾</span>
             </button>
 
             {isOpen && (
-                <ul className="absolute border-1 rounded-sm mt-1 z-20 w-full">
-                    {options.map((opt, i) => {
-                        const isActive = opt.id === active.id;
-                        return (
-                            <li key={opt.id} className={`cursor-pointer hover:bg-(--color-secondary) py-1 px-2 rounded-sm ${isActive ? "text-(--color-active)" : ""}`}  onClick={() => selectOption(opt)}>
-                                <span>{opt.text}</span>
-                            </li>
-                        )
-                    })}
-                </ul>
+                <div className="absolute border-1 rounded-sm mt-1 z-20 w-full bg-(--color-bg) flex flex-col justify-start items-center">
+                    <input className="w-full text-(--color-text) outline-none px-2 py-1" placeholder="Search" type="text" value={searchField} onChange={(e) => setSearchField(e.target.value)}/>
+                    <div className="border-1 border-(--color-border) w-full"></div>
+                    <ul className="w-full max-h-24 overflow-y-auto scrollbar-thumb-(--color-secondary) scrollbar-track-transparent">
+                        {options.filter(opt => opt.text.includes(searchField)).map((opt, i) => {
+                            const isActive = opt.id === active.id;
+                            return (
+                                <li key={opt.text} className={`flex ${hover === opt.text ? "justify-between items-center bg-(--color-secondary)" : "justify-start"} cursor-pointer py-1 px-2 rounded-sm ${isActive ? "text-(--color-active)" : ""}`} onMouseOver={(e) => {e.stopPropagation(); setHover(opt.text);}} onMouseLeave={(e) => {e.stopPropagation(); setHover(null);}} onClick={() => {setSearchField(''); selectOption(opt);}}>
+                                    <span>{opt.text}</span>
+                                    {hover === opt.text && (<div className="flex justify-center items-center gap-1">
+                                        {opt.icons?.map(({icon: Icon, onClick}, index) => (<Icon key={index} size={16} className="text-(--color-active) hover:text-(--color-accentHover)" onClick={onClick} />))}
+                                    </div>)}
+                                </li>
+                            )
+                        })}
+                    </ul>
+                </div>
             )}
         </div>
     )

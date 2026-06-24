@@ -213,10 +213,36 @@ const Folder = ({ TreeNode, activeTab, setActiveTab, openTabs, setOpenTabs, inde
         return screen;
     }
 
+    const checkPathIsOpen = (path, screen) => {
+        if (screen.displayType === "file") {
+            if (screen.path === path) {
+                return true;
+            }
+            return false;
+        }
+        return screen.displays.reduce((tot, curr) => tot || checkPathIsOpen(path, curr), false);
+    }
+
+    const screenIdWithPath = (path, screen) => {
+        if (screen.displayType === "file") {
+            if (screen.path === path) {
+                return screen.screenId;
+            }
+            return '';
+        }
+        return screen.displays.reduce((tot, curr) => screenIdWithPath(path, curr) ? screenIdWithPath(path, curr) : tot, '');
+    }
+
     const fileCreate = (path) => {
-        const tabToChange = openTabs[openTabs.findIndex(tab => tab.tabId === activeTab)];
-        let modified = fileCreateHelper(path, tabToChange.screens, tabToChange.activeScreen);
-        setOpenTabs(prev => prev.map(tab => tab.tabId === activeTab ? { ...tab, screens: modified } : tab));
+        const tabWithPath = openTabs.filter(s => checkPathIsOpen(path, s.screens));
+        if (tabWithPath.length === 0) {
+            const tabToChange = openTabs[openTabs.findIndex(tab => tab.tabId === activeTab)];
+            let modified = fileCreateHelper(path, tabToChange.screens, tabToChange.activeScreen);
+            setOpenTabs(prev => prev.map(tab => tab.tabId === activeTab ? { ...tab, screens: modified } : tab));
+        } else {
+            setOpenTabs(prev => prev.map(tab => tab.tabId === tabWithPath[0].tabId ? { ...tab, activeScreen: screenIdWithPath(path, tabWithPath[0].screens)} : tab));
+            setActiveTab(tabWithPath[0].tabId);
+        }
     }
 
     const fileDestroyHelper = async (screen) => {

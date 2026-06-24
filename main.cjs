@@ -47,11 +47,13 @@ ipcMain.handle('read-folder', (event, dirPath) => {
 
 ipcMain.handle('init-folder', async (event) => {
     const defaultPath = path.join(os.homedir(), "AgiNote/notes");
+    const stylesPath = path.join(os.homedir(), "AgiNote/styles");
     try {
         await fs.promises.mkdir(defaultPath, { recursive: true });
-        return defaultPath;
+        await fs.promises.mkdir(stylesPath, { recursive: true });
+        return [defaultPath, stylesPath];
     } catch (error) {
-        console.error("Failed to initialise folder: ", error);
+        console.error("Failed to initialise folders: ", error);
         throw error;
     }
 });
@@ -150,6 +152,23 @@ ipcMain.handle('copy', async (event, src, dest) => {
         return true;
     } catch (err) {
         console.error("Failed to copy: ", err);
+        throw err;
+    }
+});
+
+ipcMain.handle('read-theme', async (event, name) => {
+    try {
+        const stylesPath = path.join(os.homedir(), "AgiNote/styles");
+        const content = await fs.promises.readFile(`${stylesPath}/${name}.css`, 'utf-8');
+        const result = {};
+        const regex = /--(\w+):\s*([^;]+);/g;
+        let match;
+        while ((match = regex.exec(content)) !== null) {
+            result[match[1]] = match[2].trim();
+        }
+        return result;
+    } catch (err) {
+        console.error("Failed to read theme: ", err);
         throw err;
     }
 })

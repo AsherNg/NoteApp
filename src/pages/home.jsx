@@ -6,11 +6,12 @@ import Chat from '../components/Chat.jsx';
 import Modal from '../components/Modal.jsx';
 import Dropdown from '../components/Dropdown.jsx';
 import PrintPreview from '../components/PrintPreview.jsx';
-import { IoClose, IoMenu } from "react-icons/io5";
+import { IoClose, IoMenu, IoTrashOutline, IoPencil } from "react-icons/io5";
 import { useRef, useState, useEffect } from 'react';
 import { InputField, Alert, Button, ContextMenu } from '../components/form.jsx';
 import Loading  from "./loading.jsx";
 import supabase from "../supabaseClient.jsx";
+import CustomPage from './settings/customPage.jsx';
 import { EditorView } from 'codemirror';
 
 function NewTab({tabId, activeId, setShowNewNote}) {
@@ -60,7 +61,7 @@ function ScreenHelper({activeTab, openTabs, setOpenTabs, screens, tabId, onRight
     const [menuPos, setMenuPos] = useState({ x: 0, y: 0 });
 
     const tabIndex = openTabs.findIndex(tab => tab.tabId === activeTab);
-    if (tabIndex === -1) return null; // or loading state
+    if (tabIndex === -1) return null;
 
     if (screens.displayType === "file") {
         return (
@@ -112,6 +113,7 @@ function Home() {
     const [openChat, setOpenChat] = useState(false);
     const [openAccount, setOpenAccount] = useState(false);
     const [openSettings, setOpenSettings] = useState(false);
+    const [openCustomiseStyle, setOpenCustomiseStyle] = useState(false);
 
     const [openTabs, setOpenTabs] = useState(() => {
         const saved = localStorage.getItem("openTabs");
@@ -147,6 +149,7 @@ function Home() {
 
     const [showNewNote, setShowNewNote] = useState(false);
     const [homeDir, setHomeDir] = useState(null);
+    const [stylesDir, setStylesDir] = useState(null);
     const [treeVersion, setTreeVersion] = useState(0);
     const [loading, setLoading] = useState(true);
     const refreshTree = () => setTreeVersion(v => v+1);
@@ -164,24 +167,90 @@ function Home() {
     useEffect(() => {localStorage.setItem("openTabs", JSON.stringify(openTabs))}, [openTabs]);
 
     useEffect(() => {
-        const saved = localStorage.getItem('rootFolder');
-        if (saved) {
-            setHomeDir(saved);
+        const savedNotes = localStorage.getItem('rootFolder');
+        const savedStyles = localStorage.getItem('stylesFolder');
+        if (savedNotes && savedStyles) {
+            setHomeDir(savedNotes);
+            setStylesDir(savedStyles);
             setLoading(false);
         } else {
             window.fileApi.initDefault().then(h => {
-                setHomeDir(h);
-                localStorage.setItem('rootFolder', h);
+                setHomeDir(h[0]);
+                localStorage.setItem('rootFolder', h[0]);
+                setStylesDir(h[1]);
+                localStorage.setItem('stylesFolder', h[1]);
                 setLoading(false);
             });
         };
     }, []);
 
+
     // Get theme from localstorage, set to dark by default
     const [theme, setTheme] = useState(() => {
         return localStorage.getItem("theme") ?? "Dark";
     });
-    useEffect(() => {document.documentElement.setAttribute('data-theme', theme);}, [theme]);
+
+    const [themeOptionsVersion, setThemeOptionsVersion] = useState(0);
+
+    const [themeOptions, setThemeOptions] = useState([]);
+
+    const [deleteThemeAlert, setDeleteThemeAlert] = useState('');
+    const deleteThemeRef = useRef(null);
+    const deleteThemeFunc = async (name) => {
+        await window.fileApi.deleteFile(`${stylesDir}/${name}.css`);
+        setTheme("Dark");
+        setThemeOptionsVersion(prev => prev+1);
+        setDeleteThemeAlert('');
+        console.log("Deleted");
+    }
+
+    const [stylesContent, setStylesContent] = useState('');
+
+    useEffect(() => {
+        const themeSettingFunc = async () => {
+            if (theme === "Dark" || theme === "Light") {
+                setStylesContent('');
+                document.documentElement.setAttribute('data-theme', theme);
+                return;
+            }
+            else if (stylesDir && theme !== "Dark" && theme !== "Light") {
+            const path = `${stylesDir}/${theme}.css`;
+                try {
+                    const content = await window.fileApi.readFile(path);
+                    setStylesContent(content || '');
+                } catch (err) {
+                    console.error("Failed to load custom theme:", err);
+                    setStylesContent('');
+                }}
+            localStorage.setItem('theme', theme);
+        }
+        themeSettingFunc();
+    }, [theme, stylesDir])
+    
+    useEffect(() => {
+        const leadThemeOptions = async () => {
+            let themeOpt = [
+                { id: 1, text: "Dark", onSelect: () => setTheme("Dark") },
+                { id: 2, text: "Light", onSelect: () => setTheme("Light") },
+            ];
+            let i = 3;
+            if (!stylesDir) return;
+            await window.fileApi.readFolder(stylesDir).then(folder => {
+                const stylesList = folder.items.map(item => {
+                    let name = item.name.substring(0, item.name.lastIndexOf('.'));
+                    let option = { id: i, text: name, onSelect: () => setTheme(name), icons: [
+                        {icon: IoTrashOutline, onClick: () => { setDeleteThemeAlert(name) }},
+                        {icon: IoPencil, onClick: () => {setTheme(name); setOpenCustomiseStyle(true);}},
+                    ]};
+                    i++;
+                    return option;
+                });
+                setThemeOptions([ ...themeOpt, ...stylesList ]);
+            });
+        }
+        leadThemeOptions();
+    }, [stylesDir, themeOptionsVersion]);
+
 
     const updateScreenHelper = (screen, path, activeScreenId) => {
         if (screen.screenId === activeScreenId) {
@@ -318,6 +387,7 @@ function Home() {
 
     return (
         <div className="flex bg-[var(--color-bg)] w-screen h-screen">
+        {stylesContent && (<style> {stylesContent} </style>)}
             <Sidebar setOpenExplorer={() => setOpenExplorer(!openExplorer)} setOpenPrint={() => {
                 const tab = openTabs.find(t => t.tabId === activeTab);
                 const content = viewRefs.current.get(tab?.activeScreen)?.current.state.doc.toString() ?? "";
@@ -377,17 +447,34 @@ function Home() {
                     <div className="border-1 border-(--color-border) w-full my-3"></div>
                     <div className="flex justify-between items-center w-full my-3">
                         <div className="flex flex-col">
-                            <span className="font-semibold text-(--color-hover)">Theme</span>
+                            <span className="font-semibold text-(--color-hover)">Choose Theme</span>
                             <span>Choose the color theme of the app</span>
                         </div>
-                        <Dropdown activeText={theme} options={[
-                            { id: 1, text: "Dark", onSelect: () => { if (theme !== "Dark") setTheme("Dark"); localStorage.setItem("theme", "Dark"); }},
-                            { id: 2, text: "Light", onSelect: () => { if (theme !== "Light") setTheme("Light"); localStorage.setItem("theme", "Light"); }},
-                            { id: 3, text: "Custom" }
-                        ]}></Dropdown>
+                        <Dropdown activeText={theme} options={ themeOptions } search={true}></Dropdown>
+                    </div>
+                    <div className="flex justify-between items-center w-full my-3">
+                        <div className="flex flex-col">
+                            <span className="font-semibold text-(--color-hover)">Add Theme</span>
+                            <span>Add a custom color theme for the app</span>
+                        </div>
+                        <button onClick={() => {setOpenSettings(false); setTheme("Dark"); setOpenCustomiseStyle(true);}} className="border-1 border-(--color-text) rounded-sm px-4 py-2 text-(--color-active) cursor-pointer">Customise</button>
                     </div>
                 </div>
             </Modal>
+            <Modal isOpen={openCustomiseStyle}>
+                <CustomPage themeName={theme} setTheme={setTheme} setOpenCustomiseStyle={setOpenCustomiseStyle} setOpenSettings={setOpenSettings} stylesDir={stylesDir} setThemeOptionsVersion={setThemeOptionsVersion}/>
+            </Modal>
+            {deleteThemeAlert.length > 0 && <Alert menuRef={deleteThemeRef} events={["mousedown", "keydown"]} conditionals={[(mousedown) => !deleteThemeRef.current.contains(mousedown.target), (keydown) => keydown.key === 'Enter']} actions={[() => setDeleteThemeAlert(false), () => deleteThemeFunc(deleteThemeAlert)]}>
+                <div className="flex flex-col justify-center items-center text-(--color-hover)">
+                    <div className="text-[var(--color-text)] text-md">Once this is done, it cannot be undone!</div>
+                    <div className="text-[var(--color-text)] text-md">Are you sure to delete "<em>{deleteThemeAlert}</em>" theme?</div>
+                    <div className="text-[var(--color-text)] text-sm mb-1">(If you aren't just click outside this box! If you are, just click Enter!)</div>
+                    <div className="flex justify-center gap-4">
+                        <Button text="Cancel" onClick={() => setDeleteThemeAlert('')} />
+                        <Button text="Confirm" onClick={() => deleteThemeFunc(deleteThemeAlert)} className="bg-(--color-danger) hover:bg-(--color-dangerHover)"/>
+                    </div>
+                </div>
+            </Alert>}
         </div>
     );
 }
