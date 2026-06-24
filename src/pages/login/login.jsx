@@ -1,7 +1,7 @@
 import { useState } from "react";
 import supabase from "./../../supabaseClient.jsx";
 import aginoteLogoOnly from "./../../assets/aginoteLogoOnly.png";
-import { InputField, Button, Linker } from "../../components/Form.jsx";
+import { InputField, Button, Linker } from "../../components/form.jsx";
 import { FcGoogle } from "react-icons/fc";
 import { ImGithub } from "react-icons/im";
 

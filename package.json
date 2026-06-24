@@ -3,13 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "main": "main.cjs",
+  "author": "Dylan and Asher",
+  "description": "A simple noteapp called AgiNote",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "electron": "electron .",
-    "start": "electron-forge start",
+    "start": "concurrently \"npm run dev\" \"electron .\"",
     "package": "electron-forge package",
     "make": "vite build && electron-forge make",
     "dist": "npm run build && electron-builder"
@@ -20,23 +22,14 @@
     "directories": {
       "output": "dist_electron"
     },
-    "mac": {
-      "target": [
-        "dmg",
-        "zip"
-      ]
-    },
-    "win": {
-      "target": [
-        "nsis"
-      ]
-    },
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb"
-      ]
-    }
+    "files": [
+      "dist/**/*",
+      "main.cjs",
+      "preload.cjs"
+    ],
+    "mac": { "target": [ "dmg", "zip" ], "icon": "src/assets/aginoteLogoOnly.icns" },
+    "win": { "target": [ "nsis" ], "icon": "src/assets/aginoteLogoOnly.ico" },
+    "linux": { "target": [ "AppImage", "deb" ], "icon": "src/assets/aginoteLogoOnly.png" }
   },
   "dependencies": {
     "@codemirror/lang-markdown": "^6.5.0",

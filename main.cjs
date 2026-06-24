@@ -21,7 +21,11 @@ const createWindow = () => {
     win.webContents.session.webRequest.onBeforeSendHeaders((details, callback) => {
         callback({ requestHeaders: { ...details.requestHeaders } });
     });
-    win.loadFile(__dirname, 'dist/index.html');
+    if (process.env.NODE_ENV === 'development' || !app.isPackaged) {
+        win.loadURL('http://localhost:5173');
+    } else {
+        win.loadFile(path.join(__dirname, 'dist', 'index.html'));
+    }
 }
 
 const dirToJson = (dirPath) => {
