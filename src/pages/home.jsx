@@ -211,7 +211,6 @@ function Home() {
             if (theme === "Dark" || theme === "Light") {
                 setStylesContent('');
                 document.documentElement.setAttribute('data-theme', theme);
-                return;
             }
             else if (stylesDir && theme !== "Dark" && theme !== "Light") {
             const path = `${stylesDir}/${theme}.css`;

@@ -9,7 +9,34 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "electron": "electron .",
-    "start": "concurrently \"npm run dev\" \"electron .\""
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "vite build && electron-forge make",
+    "dist": "npm run build && electron-builder"
+  },
+  "build": {
+    "appId": "io.github.AsherNg.noteapp",
+    "productName": "AgiNote",
+    "directories": {
+      "output": "dist_electron"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    }
   },
   "dependencies": {
     "@codemirror/lang-markdown": "^6.5.0",
@@ -19,6 +46,7 @@
     "@supabase/supabase-js": "^2.106.1",
     "@tailwindcss/vite": "^4.3.0",
     "codemirror": "^6.0.2",
+    "electron-squirrel-startup": "^1.0.1",
     "katex": "^0.17.0",
     "marked": "^18.0.5",
     "react": "^19.2.6",
@@ -29,12 +57,21 @@
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^7.11.2",
+    "@electron-forge/maker-deb": "^7.11.2",
+    "@electron-forge/maker-rpm": "^7.11.2",
+    "@electron-forge/maker-squirrel": "^7.11.2",
+    "@electron-forge/maker-zip": "^7.11.2",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.11.2",
+    "@electron-forge/plugin-fuses": "^7.11.2",
+    "@electron/fuses": "^1.8.0",
     "@eslint/js": "^10.0.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.5.0",
     "concurrently": "^10.0.3",
     "electron": "^42.3.0",
+    "electron-builder": "^26.15.3",
     "eslint": "^10.3.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
@@ -42,5 +79,10 @@
     "supabase": "^2.101.0",
     "vite": "^7.3.3",
     "wait-on": "^9.0.10"
+  },
+  "overrides": {
+    "tar": "^7.5.7",
+    "esbuild": "^0.28.1",
+    "tmp": "^0.2.7"
   }
 }
