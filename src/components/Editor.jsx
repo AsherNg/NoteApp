@@ -7,6 +7,8 @@ import { defaultKeymap, history, historyKeymap, indentWithTab, insertNewlineAndI
 import { closeBrackets, closeBracketsKeymap, autocompletion, completionKeymap } from "@codemirror/autocomplete";
 import { markdown } from "@codemirror/lang-markdown";
 import { languages } from "@codemirror/language-data";
+import katex from "katex";
+import "katex/dist/katex.min.css";
 
 const editorHighlightStyle = HighlightStyle.define([
     { tag: tags.keyword, class: "text-(--color-tagKeyword)" },
@@ -114,6 +116,87 @@ const codeBlockPlugin = ViewPlugin.fromClass(class {
     }
 }, { decorations: v => v.decorations });
 
+class KatexWidget extends WidgetType {
+  constructor(latex, display) {
+    super()
+    this.latex = latex
+    this.display = display
+  }
+
+  eq(other) {
+    return other.latex === this.latex && other.display === this.display
+  }
+
+  toDOM() {
+    const wrap = document.createElement("span")
+    wrap.className = this.display ? "cm-katex-display" : "cm-katex-inline"
+    try {
+      katex.render(this.latex, wrap, {
+        throwOnError: false,
+        displayMode: this.display,
+      })
+    } catch {
+      wrap.className = "cm-katex-error"
+      wrap.textContent = this.latex
+    }
+    return wrap
+  }
+
+  ignoreEvent() { return false }
+}
+
+
+const latexPlugin = ViewPlugin.fromClass(class {
+    constructor(view) {
+        this.decorations = this.buildDecorations(view);
+    }
+
+    update(update) {
+        if (update.docChanged || update.selectionSet) {
+            this.decorations = this.buildDecorations(update.view);
+        }
+    }
+
+    buildDecorations(view) {
+        const builder = new RangeSetBuilder()
+        const text = view.state.doc.toString()
+        const { head } = view.state.selection.main
+        const activeLine = view.state.doc.lineAt(head).number
+
+        const ranges = []
+
+        // Display math: $$...$$ (must run before inline)
+        const displayRe = /\$\$([^$]+?)\$\$/gs
+        const displayRanges = []
+        let m
+        while ((m = displayRe.exec(text)) !== null) {
+            displayRanges.push({ from: m.index, to: m.index + m[0].length })
+            ranges.push({ from: m.index, to: m.index + m[0].length, latex: m[1], display: true })
+        }
+
+        const inlineRe = /\$([^$\n]+?)\$/g
+        while ((m = inlineRe.exec(text)) !== null) {
+            const from = m.index
+            const to = m.index + m[0].length
+            const overlaps = displayRanges.some(d => from < d.to && to > d.from)
+            if (overlaps) continue;
+            //if (text[index - 1] === "$" || text[index + m[0].length] === "$") continue
+            ranges.push({ from, to, latex: m[1], display: false })
+        }
+
+        ranges.sort((a, b) => a.from - b.from)
+
+        for (const r of ranges) {
+            const spanStartLine = view.state.doc.lineAt(r.from).number
+            const spanEndLine = view.state.doc.lineAt(r.to).number
+            if (activeLine >= spanStartLine && activeLine <= spanEndLine) continue
+            builder.add(r.from, r.to, Decoration.replace({ widget: new KatexWidget(r.latex, r.display) }))
+        }
+
+        return builder.finish()
+    }
+}, {decorations: v => v.decorations})
+
 const getEditorContents = () => {
     return EditorView.state.doc.toString();
 }
@@ -182,6 +265,7 @@ const Editor = ({ viewRefs, path, tabId, screenId }) => {
                     }),
                     headingPlugin,
                     codeBlockPlugin,
+                    latexPlugin,
                     EditorView.updateListener.of((update) => {
                         if (update.docChanged && path) {
                             clearTimeout(saveTimer.current);
