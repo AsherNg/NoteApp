@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { IoAdd, IoChevronDown, IoClose, IoTrash } from "react-icons/io5";
+import { IoAdd, IoChevronDown, IoClose, IoTrash, IoKey   } from "react-icons/io5";
 import supabase from "../supabaseClient";
 import { GoogleGenAI } from "@google/genai";
 
-const key = import.meta.env.VITE_CHATBOT_APIKEY;
-const ai = new GoogleGenAI({ apiKey: key });
+//const key = import.meta.env.VITE_CHATBOT_APIKEY;
+let ai; // = new GoogleGenAI({ apiKey: key });
 
 async function getUserId() {
     const { data: {user} } = await supabase.auth.getUser();
@@ -20,6 +20,15 @@ async function loadApiKey() {
         .eq("user_id", uid)
         .single();
     return data?.api_key ?? null;
+}
+
+async function saveApiKey(key) {
+    const uid = await getUserId();
+    if (!uid) return;
+    await supabase.from("user_settings").upsert(
+        { user_id: uid, api_key: key },
+        { onConflict: "user_id" }
+    );
 }
 
 async function loadConversations() {
@@ -88,6 +97,44 @@ async function callChat(chat, messages) {
     */
 }
 
+const ApiKeySetup = ({ onSave }) => {
+    const [key, setKey] = useState("");
+    const [saving, setSaving] = useState(false);
+    const [err, setErr] = useState("");
+ 
+    const handleSave = async () => {
+        setSaving(true);
+        await saveApiKey(key);
+        onSave(key);
+        setSaving(false);
+    };
+ 
+    return (
+        <div className="flex flex-col gap-3 h-full justify-center">
+            <div className="flex items-center gap-2 text-(--color-active)">
+                <IoKey size={16} />
+                <span className="text-sm font-medium">API Key</span>
+            </div>
+            <p className="text-xs text-(--color-text) leading-relaxed">
+                Enter your API key to use the AI tutor. It's saved to your account and used only for chat requests.
+            </p>
+            <input
+                type="password"
+                value={key}
+                onChange={e => { setKey(e.target.value); setErr(""); }}
+                className="w-full bg-(--color-bg) border-1 border-(--color-border) rounded px-3 py-2 text-sm text-(--color-text) outline-none focus:border-(--color-active) font-mono"
+            />
+            {err && <p className="text-xs text-red-400">{err}</p>}
+            <button
+                onClick={handleSave}
+                disabled={saving || !key}
+                className="w-full py-2 rounded text-sm font-medium bg-(--color-active) text-(--color-bg) disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
+            >
+                {saving ? "Saving…" : "Save & Start"}
+            </button>
+        </div>
+    );
+}
 
 const MessageBubble = ({ role, content }) => {
     const isUser = role === "user";
@@ -149,19 +196,20 @@ const Chat = ({ open, closeChat }) => {
     const messagesEndRef = useRef(null);
     const textareaRef = useRef(null);
 
-    const chatbot = ai.chats.create({ model: "gemini-3.5-flash" });
+    let chatbot;
 
     useEffect(() => {
-        /*loadApiKey().then(k => {
+        loadApiKey().then(k => {
             setApiKey(k);
-            setKeyLoading(false);
-        })*/
-       setApiKey();
+            setKeyLoading(false);  
+        })
     }, []);
 
     useEffect(() => {
         if (open && apiKey) {
             loadConversations().then(setConversations);
+            ai = new GoogleGenAI({ apiKey: apiKey });
+            chatbot = ai.chats.create({ model: "gemini-3.5-flash" });
         }
     }, [open, apiKey]);
 
@@ -251,22 +299,28 @@ const Chat = ({ open, closeChat }) => {
                     <span className="text-(--color-active)">Chat</span>
                     <IoClose size={24} onClick={() => closeChat()} className="cursor-pointer hover:text-(--color-hover)"/>
                 </div>
-                <div className="flex items-center my-1">
-                    <button onClick={() => setShowSidebar(s => !s)} className="flex items-center gap-1 hover:text-(--color-hover)">
-                        <span>Conversations</span>
-                        <IoChevronDown size={12} className={`transition-transform ${showSidebar ? "rotate-180" : ""}`} />
-                    </button>
-                </div>  
-                {showSidebar && (
+                {apiKey && (
+                    <div className="flex items-center my-1">
+                        <button onClick={() => setShowSidebar(s => !s)} className="flex items-center gap-1 hover:text-(--color-hover)">
+                            <span>Conversations</span>
+                            <IoChevronDown size={12} className={`transition-transform ${showSidebar ? "rotate-180" : ""}`} />
+                        </button>
+                    </div>
+                )}  
+                {showSidebar && apiKey && (
                     <div>
                         <ConversationList conversations={conversations} activeId={activeConvId} onSelect={handleSelectConversation} onCreate={handleNewConversation} onDelete={handleDeleteConversation}/>
                     </div>
                 )}
-            </div>            
+            </div>
 
-            
+            {!apiKey && (
+                <ApiKeySetup onSave={key => { setApiKey(key); }}/>
 
-            <div className="overflow-y-auto px-3 my-3 scrollbar-gutter-stable scrollbar-thumb-(--color-tertiary) scrollbar-track-transparent flex flex-col">
+            )}         
+
+            {apiKey && (
+                <div className="overflow-y-auto px-3 my-3 scrollbar-gutter-stable scrollbar-thumb-(--color-tertiary) scrollbar-track-transparent flex flex-col">
                 {msgLoading && (
                     <div className="text-xs opacity-50 text-center">
                         Loading...
@@ -277,11 +331,14 @@ const Chat = ({ open, closeChat }) => {
                 ))}
                 {sending && <ThinkingBubble/>}
                 {error && <p className="text-xs text-center text-black border-1 border-(--color-border) p-3 rounded-lg bg-(--color-danger)">{error}</p>}
-            </div>
+                </div>
+            )}
 
-            <div className="border-t-1 border-(--color-border) h-32 pt-3">
-                <textarea className="h-full w-full resize-none border-1 border-(--color-border) outline-none rounded-sm focus:border-(--color-active) p-2" ref={textareaRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} placeholder="Ask a question... (Enter to send)" rows={1}/>
-            </div>
+            {apiKey && (
+                <div className="border-t-1 border-(--color-border) h-32 pt-3">
+                    <textarea className="h-full w-full resize-none border-1 border-(--color-border) outline-none rounded-sm focus:border-(--color-active) p-2" ref={textareaRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} placeholder="Ask a question... (Enter to send)" rows={1}/>
+                </div>
+            )}
         </div>
     );
 }
