@@ -81,7 +81,6 @@ function ScreenHelper({activeTab, openTabs, setOpenTabs, screens, tabId, onRight
                         {id: 1, name: "Split Right", onClick: ((e) => {e.stopPropagation(); onRightSplit()})},
                         {id: 2, name: "Split Down", onClick: ((e) => {e.stopPropagation(); onDownSplit()})},
                         {id: 3, name: "Close Display", onClick: ((e) => {e.stopPropagation(); onCloseDisplay()})},
-                        {id: 4, name: "Print Preview", onClick: () => console.log("...")},
                     ]}
                 />}
                 {screens.path !== null ? <Editor viewRefs={viewRefs} path={screens.path} tabId={tabId} activeTab={activeTab} screenId={screens.screenId}></Editor> : <NewTab tabId={tabId} activeId={activeTab} setShowNewNote={setShowNewNote}/>}
@@ -410,21 +409,18 @@ function Home() {
 
             <Chat open={openChat} closeChat={() => setOpenChat(false)}/>
 
-            <Modal isOpen={openPrint}>
+            <Modal isOpen={openPrint} setOpen={setOpenPrint}>
                 <div className="w-3xl h-[80%] bg-(--color-bg) rounded-lg p-10 text-(--color-text) flex flex-col">
                     <div className="flex flex-row justify-between w-full">
                         <span className="font-bold text-(--color-hover)">Export to PDF</span>
                         <IoClose size={24} onClick={() => setOpenPrint(false)} className="cursor-pointer hover:text-(--color-hover)"/>
                     </div>
                     <div className="border-1 border-(--color-border) w-full my-3"></div>
-                    <div className="flex flex-row my-3 grow">
-                        <PrintPreview markdown={markdown}/>
-                        
-                    </div>
+                    <PrintPreview markdown={markdown} setOpenPrint={setOpenPrint} openTabs={openTabs} activeTab={activeTab}/>
                 </div>
             </Modal>
 
-            <Modal isOpen={openAccount}>
+            <Modal isOpen={openAccount} setOpen={setOpenAccount}>
                 <div className="w-3xl h-[80%] bg-(--color-bg) rounded-lg p-10 text-(--color-text)">
                     <div className="flex flex-row justify-between w-full">
                         <span className="font-bold text-(--color-hover)">Account</span>
@@ -437,7 +433,7 @@ function Home() {
                 </div>
             </Modal>
 
-            <Modal isOpen={openSettings}>
+            <Modal isOpen={openSettings} setOpen={setOpenSettings}>
                 <div className="w-2xl h-[80%] flex flex-col items-center bg-(--color-bg) rounded-lg p-10 text-(--color-text)">
                     <div className="flex flex-row justify-between w-full my-3">
                         <span className="font-bold text-lg text-(--color-hover)">Settings</span>
@@ -449,7 +445,7 @@ function Home() {
                             <span className="font-semibold text-(--color-hover)">Choose Theme</span>
                             <span>Choose the color theme of the app</span>
                         </div>
-                        <Dropdown activeText={theme} options={ themeOptions } search={true}></Dropdown>
+                        <Dropdown activeText={theme} options={ themeOptions } search={true} widthClass='w-48'></Dropdown>
                     </div>
                     <div className="flex justify-between items-center w-full my-3">
                         <div className="flex flex-col">
@@ -460,7 +456,7 @@ function Home() {
                     </div>
                 </div>
             </Modal>
-            <Modal isOpen={openCustomiseStyle}>
+            <Modal isOpen={openCustomiseStyle} setOpen={setOpenCustomiseStyle}>
                 <CustomPage themeName={theme} setTheme={setTheme} setOpenCustomiseStyle={setOpenCustomiseStyle} setOpenSettings={setOpenSettings} stylesDir={stylesDir} setThemeOptionsVersion={setThemeOptionsVersion}/>
             </Modal>
             {deleteThemeAlert.length > 0 && <Alert menuRef={deleteThemeRef} events={["mousedown", "keydown"]} conditionals={[(mousedown) => !deleteThemeRef.current.contains(mousedown.target), (keydown) => keydown.key === 'Enter']} actions={[() => setDeleteThemeAlert(false), () => deleteThemeFunc(deleteThemeAlert)]}>

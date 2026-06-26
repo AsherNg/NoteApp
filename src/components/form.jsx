@@ -52,7 +52,7 @@ function Linker({ to, text, className }) {
     )
 }
 
-function ContextMenu({ x, y, onClose, items, align="left", bgColor="[var(--color-bg)]"}) {
+function ContextMenu({ x, y, onClose, items, align="left", bgColor="(--color-bg)"}) {
     const [hoverField, setHoverField] = useState('');
     const [pos, setPos] = useState({ top: y, left: x })
     const onHover = (id) => {setHoverField(id)}

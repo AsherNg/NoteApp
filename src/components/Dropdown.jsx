@@ -8,7 +8,7 @@ const options = [
 ]
 */
 
-const Dropdown = ({ options, activeText, search=false }) => { 
+const Dropdown = ({ options, activeText, search=false, widthClass='w-24' }) => { 
     const [isOpen,  setIsOpen] = useState(false);
     const [active, setActive] = useState(activeText);
     const [hover, setHover] = useState(null);
@@ -33,7 +33,7 @@ const Dropdown = ({ options, activeText, search=false }) => {
     }
 
     return (
-        <div className="relative w-48 p-2" ref={dropdownRef}>
+        <div className={`relative ${widthClass} p-2`} ref={dropdownRef}>
             <button onClick={() => setIsOpen(!isOpen)} className="border-1 border-(--color-text) p-2 rounded-sm w-full text-(--color-active) cursor-pointer flex justify-start items-center ">
                 <span>{activeText}</span>
                 <span className="transition-transform"> ▾</span>
