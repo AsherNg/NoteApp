@@ -1,6 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
-const Modal = ({ children, isOpen }) => {
+
+const Modal = ({ children, isOpen, setOpen }) => {
+    const menuRef = useRef(null);
+    useEffect(() => {
+        const clickAway = (e) => {
+            if (menuRef.current && menuRef.current === e.target) setOpen(false);
+        }
+        document.addEventListener("mousedown", clickAway);
+        return () => document.removeEventListener("mousedown", clickAway);
+    }, [])
+
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
@@ -13,7 +23,7 @@ const Modal = ({ children, isOpen }) => {
     if (!isOpen) return null;
     
     return (
-        <div className=" z-20 flex justify-center items-center fixed w-screen h-screen bg-black/70">
+        <div ref={menuRef} className=" z-20 flex justify-center items-center fixed w-screen h-screen bg-black/70">
             {children}
         </div>
     )

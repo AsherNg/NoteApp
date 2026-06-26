@@ -14,4 +14,5 @@ contextBridge.exposeInMainWorld('fileApi', {
     readFolder: (dirPath) => ipcRenderer.invoke('read-folder', dirPath),
     copy: (src, dest) => ipcRenderer.invoke('copy', src, dest),
     readTheme: (name) => ipcRenderer.invoke('read-theme', name),
+    exportPdf: (html, fileName, options) => ipcRenderer.invoke('export-pdf', html, fileName, options)
 });

@@ -176,7 +176,28 @@ ipcMain.handle('read-theme', async (event, name) => {
         console.error("Failed to read theme: ", err);
         throw err;
     }
-})
+});
+
+ipcMain.handle('export-pdf', async (event, html, fileName, options) => {
+    const { filePath } = await dialog.showSaveDialog({
+        defaultPath: path.join(app.getPath('downloads'), `${fileName}.pdf`),
+        filters: [{ name: 'PDF', extensions: ['pdf'] }]
+    });
+    if (!filePath) return;
+
+    const pdfWin = new BrowserWindow({ show: false });
+    await pdfWin.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
+
+    const pdfData = await pdfWin.webContents.printToPDF({
+        landscape: options.landscape,
+        pageSize: options.pageSize,
+        margins: options.margins
+    });
+
+    await fs.promises.writeFile(filePath, pdfData);
+    pdfWin.destroy();
+    return filePath;
+});
 
 app.whenReady().then(() => {
   createWindow();
