@@ -4,12 +4,25 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
+      name: 'AgiNote',
+      executableName: 'AgiNote',
+      icon: './src/assets/aginoteLogoOnly',
+      ignore: [
+          /node_modules\/.cache/,
+          /\.git/,
+          /src/,
+          /\.env/,
+      ]
   },
   rebuildConfig: {},
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
-      config: {},
+      config: {
+          name: 'AgiNote',
+          setupExe: 'AgiNoteSetup.exe',
+          setupIcon: './assets/icon.ico'
+      },
     },
     {
       name: '@electron-forge/maker-zip',
