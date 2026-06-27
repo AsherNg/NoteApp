@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import supabase from './../../supabaseClient.jsx';
-import { InputField, Button, Linker } from '../../components/Form.jsx';
+import { InputField, Button, Linker } from '../../components/form.jsx';
 import { useNavigate } from 'react-router-dom';
 
 function Recovery() {
@@ -21,19 +21,16 @@ function Recovery() {
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+/.test(email)) {
             e.email = "Invalid E-mail";
             setError(e);
+            return false;
         }
+        return true;
     }
 
-    async function submitEmail(e) {
-        e.preventDefault();
-        validateEmail();
-        if (!error.email) {
-            const { data, err } = await supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: 'http://localhost:5173/reset'
-            });
-            if (err) {
-                setError({ email: err.message });
-            }
+    async function submitEmail() {
+        if (validateEmail()) {
+            const { data, err } = await supabase.auth.resetPasswordForEmail(email);
+            if (err) setError({ email: err.message });
+            else navigate('/verify', { state: { mode: 'reset', email } });
         }
     }
 

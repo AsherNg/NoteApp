@@ -13,6 +13,7 @@ import Loading  from "./loading.jsx";
 import supabase from "../supabaseClient.jsx";
 import CustomPage from './settings/customPage.jsx';
 import { EditorView } from 'codemirror';
+import { useNavigate } from 'react-router-dom';
 
 function NewTab({tabId, activeId, setShowNewNote}) {
     return (<div className={`w-full grow flex justify-center items-center flex-col gap-2 ${tabId !== activeId ? 'hidden' : ''}`}>
@@ -65,7 +66,7 @@ function ScreenHelper({activeTab, openTabs, setOpenTabs, screens, tabId, onRight
 
     if (screens.displayType === "file") {
         return (
-            <div className={`relative flex flex-1 flex-col ${screens.path ? "justify-start" : "justify-center" } justify-center items-center box-border rounded-lg w-full h-full ${openTabs[openTabs.findIndex(tab => tab.tabId === activeTab)].activeScreen === screens.screenId ? "outline-1 outline-(--color-accentHover)" : ""}`} onClick={() => {
+            <div className={`relative flex flex-1 flex-col ${screens.path ? "justify-start" : "justify-center" } justify-center items-center box-border rounded-lg w-full h-full min-w-0 min-h-0 overflow-hidden ${openTabs[openTabs.findIndex(tab => tab.tabId === activeTab)].activeScreen === screens.screenId ? "ring-1 ring-(--color-accentHover)" : ""}`} onClick={() => {
                 setOpenTabs(tabs => tabs.map(tab => tab.tabId === activeTab ? { ...tab, activeScreen: screens.screenId } : tab))
             }}> 
                 <IoMenu size={16} className="absolute text-(--color-text) hover:text-(--color-hover) top-2 right-2 p-1 outline-2 outline-(--color-primary) z-10" 
@@ -88,13 +89,13 @@ function ScreenHelper({activeTab, openTabs, setOpenTabs, screens, tabId, onRight
         )
     } else if (screens.displayType === "v-split") {
         return (
-            <div className="flex flex-1 w-full h-full gap-2">
+            <div className="flex flex-1 w-full h-full gap-2 min-w-0 min-h-0 ">
                 {screens.displays.map(screen => (<ScreenHelper key={screen.screenId} activeTab={activeTab} openTabs={openTabs} setOpenTabs={setOpenTabs} screens={screen} tabId={tabId} onRightSplit={onRightSplit} onDownSplit={onDownSplit} onCloseDisplay={onCloseDisplay} viewRefs={viewRefs} setShowNewNote={setShowNewNote}/>))}
             </div>
         )
     } else if (screens.displayType === "h-split") {
         return (
-            <div className="flex flex-1 flex-col w-full h-full gap-2">
+            <div className="flex flex-1 flex-col w-full h-full gap-2 min-w-0 min-h-0 ">
                 {screens.displays.map(screen => (<ScreenHelper key={screen.screenId} activeTab={activeTab} openTabs={openTabs} setOpenTabs={setOpenTabs} screens={screen} tabId={tabId} onRightSplit={onRightSplit} onDownSplit={onDownSplit} onCloseDisplay={onCloseDisplay} viewRefs={viewRefs} setShowNewNote={setShowNewNote}/>))}
             </div>
         )
@@ -152,6 +153,8 @@ function Home() {
     const [treeVersion, setTreeVersion] = useState(0);
     const [loading, setLoading] = useState(true);
     const refreshTree = () => setTreeVersion(v => v+1);
+
+    const navigate = useNavigate();
 
     const handleSignOut = async () => {
         const { error } = await supabase.auth.signOut();

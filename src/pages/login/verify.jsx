@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import supabase from "./../../supabaseClient.jsx";
-import { InputField, Button } from '../../components/Form';
+import { InputField, Button } from '../../components/form.jsx';
 
 function Verify() {
     const location = useLocation();
@@ -9,6 +9,7 @@ function Verify() {
 
     const email = location.state?.email || "";
     const name = location.state?.name || "";
+    const mode = location.state?.mode || "";
 
     useEffect(() => {
         if (!email) navigate('/register');
@@ -17,10 +18,9 @@ function Verify() {
     const [token, setToken] = useState('');
     const [error, setError] = useState('');
     const [focused, setFocused] = useState(false);
-    const [resend, setResend] = useState(false);
+    const [resend, setResend] = useState(true);
 
     async function handleVerify(e) {
-        e.preventDefault();
         setError('');
 
         const { data, error: verifyError } = await supabase.auth.verifyOtp({
@@ -37,6 +37,21 @@ function Verify() {
                 email: email
             });
             navigate('/editor');
+        }
+    }
+
+    async function handleVerifyReset(e) {
+        setError('');
+        console.log("Just entered OTP");
+        const { data, error: verifyError } = await supabase.auth.verifyOtp({
+            email,
+            token,
+            type: 'recovery'
+        });
+        if (verifyError) setError(verifyError.message);
+        else {
+            console.log("Loaded!");
+            navigate('/reset');
         }
     }
 
@@ -78,7 +93,7 @@ function Verify() {
             />
             <div className="flex flex-row justify-center gap-2 items-center">
                 <Button className="my-4" text={resend ? "Resent!" : "Resend OTP"} onClick={resendOTP} enabled={resend} />
-                <Button className="my-4" text="Verify" onClick={handleVerify} enabled={!error} />
+                <Button className="my-4" text="Verify" onClick={() => mode === 'reset' ? handleVerifyReset() : handleVerify()} enabled={!error} />
                 <Button className="my-4" text="Go Back!" onClick={() => navigate('/register')} enabled={true}/>
             </div>
         </div>

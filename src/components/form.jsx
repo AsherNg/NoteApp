@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 function InputField({ id, label, type, value, setter, error, onFocus, onBlur, isFocused, example, className="w-md" }) {
-    const base = `text-black text-base p-2 text-clip rounded-lg border-2 box-border outline-none ${className}`;
+    const base = `text-(--color-active) text-base p-2 text-clip rounded-lg border-2 box-border outline-none ${className}`;
     const state = isFocused
         ? "border-(--color-accentHover) bg-(--color-bg)"
         : error

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import supabase from '../../supabaseClient';
-import { InputField, Button } from './../../components/Form.jsx';
+import { InputField, Button } from './../../components/form.jsx';
 import Loading from '../loading.jsx';
 import { useNavigate } from "react-router-dom";
 
@@ -15,33 +15,23 @@ const criteria = (password) => ({
 function Reset() {
     const [password, setPassword] = useState('');
     const [confirmPass, setConfirmPass] = useState('');
-    const [ready, setReady] = useState(false);
     const [focusedField, setFocusedField] = useState(null);
     const [error, setError] = useState('');
 
     const check = criteria(password);
-    const isPasswordSecure = Object.keys(check).reduce((acc, key) => acc || !check[key].test, false)
+    const isPasswordSecure = Object.keys(check).reduce((acc, key) => acc && check[key].test, true)
 
     function passwordCriteria() {
         return(
             <ul className="flex flex-row justify-around items-center list-none gap-2">
                 {Object.keys(check).map((key) => (
-                    <li key={key} className={`text-base ${met ? "text-green-500" : "text-gray-400"}`}> 
+                    <li key={key} className={`text-base ${check[key].test ? "text-green-500" : "text-gray-400"}`}> 
                         ✓ {check[key].text} 
                     </li>
                 ))}
             </ul>
         )
     }
-
-    useEffect(() => {
-        const { data: {subscription} } = supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'PASSWORD_RECOVERY') {
-                setReady(true);
-            }
-        });
-        return () => subscription.unsubscribe();
-    }, []);
 
     const handleFocus = (id) => { setFocusedField(id); setError(null); }
     const handleBlur = () => setFocusedField(null);
@@ -62,12 +52,8 @@ function Reset() {
         }
     }
 
-    if (!ready) {
-        return <Loading />
-    }
-
     return (
-        <div className="flex flex-col justify-start items-center gap-2 bg-gray-900">
+        <div className="flex flex-col justify-start items-center gap-2 bg-gray-900 w-screen h-screen">
             <div className="text-2xl text-gray-500">Reset Password</div>
             {passwordCriteria()}
             <div className="flex flex-col gap-2 items-start justify-center">
