@@ -21,7 +21,7 @@ module.exports = {
       config: {
           name: 'AgiNote',
           setupExe: 'AgiNoteSetup.exe',
-          setupIcon: './assets/icon.ico'
+          setupIcon: './src/assets/aginoteLogoOnly.ico'
       },
     },
     {
