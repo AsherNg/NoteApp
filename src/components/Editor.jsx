@@ -9,6 +9,7 @@ import { markdown } from "@codemirror/lang-markdown";
 import { languages } from "@codemirror/language-data";
 import katex from "katex";
 import "katex/dist/katex.min.css";
+import { search, searchKeymap } from "@codemirror/search";
 
 const editorHighlightStyle = HighlightStyle.define([
     { tag: tags.keyword, class: "text-(--color-tagKeyword)" },
@@ -250,7 +251,7 @@ const Editor = ({ viewRefs, path, tabId, screenId }) => {
                 extensions: [
                     editorTheme,
                     EditorView.editorAttributes.of({ class: "editorTheme" }),
-                    keymap.of([defaultKeymap, indentWithTab, historyKeymap, closeBracketsKeymap]),
+                    keymap.of([defaultKeymap, searchKeymap, indentWithTab, historyKeymap, closeBracketsKeymap]),
                     //lineNumbers(),
                     highlightActiveLine(),
                     highlightSpecialChars(),
@@ -260,6 +261,7 @@ const Editor = ({ viewRefs, path, tabId, screenId }) => {
                     indentOnInput(),
                     history(),
                     closeBrackets(),
+                    search({ top: true }),
                     markdown({
                         codeLanguages: languages
                     }),
