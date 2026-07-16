@@ -1,9 +1,9 @@
 import aginoteLogoOnly from "../assets/aginoteLogoOnly.png";
-import { PiUserCircle, PiFolders, PiFilePdf, PiGear, PiChats } from "react-icons/pi";
+import { PiUserCircle, PiFolders, PiFilePdf, PiGear, PiChats, PiCalendarBlank } from "react-icons/pi";
 import Tooltip from "./Tooltip";
 import { useState } from "react";
 
-const Sidebar = ({setOpenExplorer, setOpenPrint, setOpenChat, setOpenAccount, setOpenSettings})  => {
+const Sidebar = ({setOpenExplorer, setOpenPrint, setOpenChat, setOpenReminder, setOpenAccount, setOpenSettings})  => {
     return (
         <>
             <aside className="flex flex-col bg-(--color-primary) h-screen border-r-2 border-(--color-border)">
@@ -30,9 +30,11 @@ const Sidebar = ({setOpenExplorer, setOpenPrint, setOpenChat, setOpenAccount, se
                                 <PiChats size={32} className="text-(--color-icon)"/>
                             </li>
                         </Tooltip>
-                        <li className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer">
-                            <PiFilePdf size={32} className="text-(--color-icon)"/>
-                        </li>
+                        <Tooltip text="Reminders">
+                            <li onClick={() => setOpenReminder()} className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer">
+                                <PiCalendarBlank size={32} className="text-(--color-icon)"/>
+                            </li>
+                        </Tooltip>
                     </ul>
                 </nav>
 

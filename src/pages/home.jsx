@@ -6,6 +6,7 @@ import Chat from '../components/Chat.jsx';
 import Modal from '../components/Modal.jsx';
 import Dropdown from '../components/Dropdown.jsx';
 import PrintPreview from '../components/PrintPreview.jsx';
+import Reminder from '../components/Reminder.jsx';
 import { IoClose, IoMenu, IoTrashOutline, IoPencil } from "react-icons/io5";
 import { useRef, useState, useEffect } from 'react';
 import { InputField, Alert, Button, ContextMenu } from '../components/form.jsx';
@@ -111,6 +112,7 @@ function Home() {
     const [openExplorer, setOpenExplorer] = useState(false);
     const [openPrint, setOpenPrint] = useState(false);
     const [openChat, setOpenChat] = useState(false);
+    const [openReminder, setOpenReminder] = useState(false);
     const [openAccount, setOpenAccount] = useState(false);
     const [openSettings, setOpenSettings] = useState(false);
     const [openCustomiseStyle, setOpenCustomiseStyle] = useState(false);
@@ -394,7 +396,7 @@ function Home() {
                 const content = viewRefs.current.get(tab?.activeScreen)?.current.state.doc.toString() ?? "";
                 setMarkdown(content);
                 setOpenPrint(true);
-                }} setOpenChat={() => setOpenChat(!openChat)} setOpenAccount={() => setOpenAccount(true)} setOpenSettings={() => setOpenSettings(true)}/>
+                }} setOpenChat={() => setOpenChat(!openChat)} setOpenReminder={() => setOpenReminder(true)} setOpenAccount={() => setOpenAccount(true)} setOpenSettings={() => setOpenSettings(true)}/>
             <Explorer open={openExplorer} treeVersion={treeVersion} activeTab={activeTab} setActiveTab={setActiveTab} openTabs={openTabs} setOpenTabs={setOpenTabs} setTreeVersion={setTreeVersion} />
             <div className='grow w-[calc(100vh-56px)] h-screen flex flex-col'>
                 <Navbar openTabs={openTabs} setOpenTabs={setOpenTabs} activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -420,6 +422,17 @@ function Home() {
                     </div>
                     <div className="border-1 border-(--color-border) w-full my-3"></div>
                     <PrintPreview markdown={markdown} setOpenPrint={setOpenPrint} openTabs={openTabs} activeTab={activeTab}/>
+                </div>
+            </Modal>
+
+            <Modal isOpen={openReminder} setOpen={setOpenReminder}>
+                <div className="w-3xl h-[80%] bg-(--color-bg) rounded-lg p-10 text-(--color-text) flex flex-col">
+                    <div className="flex flex-row justify-between w-full">
+                        <span className="font-bold text-(--color-hover)">Set Reminders</span>
+                        <IoClose size={24} onClick={() => setOpenReminder(false)} className="cursor-pointer hover:text-(--color-hover)"/>
+                    </div>
+                    <div className="border-1 border-(--color-border) w-full my-3"></div>
+                    <Reminder/>
                 </div>
             </Modal>
 
