@@ -53,10 +53,15 @@ ipcMain.handle('read-folder', (event, dirPath) => {
 ipcMain.handle('init-folder', async (event) => {
     const defaultPath = path.join(os.homedir(), "AgiNote/notes");
     const stylesPath = path.join(os.homedir(), "AgiNote/styles");
+    const hotkeysPath = path.join(os.homedir(), "AgiNote/hotkeys.json");
     try {
         await fs.promises.mkdir(defaultPath, { recursive: true });
         await fs.promises.mkdir(stylesPath, { recursive: true });
-        return [defaultPath, stylesPath];
+        const exists = await fs.promises.access(hotkeysPath).then(() => true).catch(() => false);
+        if (!exists) {
+            await fs.promises.writeFile(hotkeysPath, JSON.stringify([]), { encoding: 'utf-8' });
+        }
+        return [defaultPath, stylesPath, hotkeysPath]
     } catch (error) {
         console.error("Failed to initialise folders: ", error);
         throw error;

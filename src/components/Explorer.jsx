@@ -1,7 +1,7 @@
 import Folder from './Folder'
 import { useState, useEffect } from "react";
 
-const Explorer = ({ open, treeVersion, activeTab, setActiveTab, openTabs, setOpenTabs, setTreeVersion }) => {
+const Explorer = ({ open, treeVersion, activeTab, setActiveTab, openTabs, setOpenTabs, setTreeVersion, stateTracker }) => {
     const [data, setData] = useState(null);
     const [dragItem, setDragItem] = useState('');
 
@@ -18,7 +18,7 @@ const Explorer = ({ open, treeVersion, activeTab, setActiveTab, openTabs, setOpe
             <nav className="flex flex-col">
                 <div className="p-2">
                     <span className=""> Local Files </span>
-                    {data ? <Folder className="ml-2" TreeNode={data} activeTab={activeTab} setActiveTab={setActiveTab} openTabs={openTabs} setOpenTabs={setOpenTabs} indents={0} setTreeVersion={setTreeVersion} dragItem={dragItem} setDragItem={setDragItem} /> : <></>}
+                    {data ? <Folder className="ml-2" TreeNode={data} activeTab={activeTab} setActiveTab={setActiveTab} openTabs={openTabs} setOpenTabs={setOpenTabs} indents={0} setTreeVersion={setTreeVersion} dragItem={dragItem} setDragItem={setDragItem} stateTracker={stateTracker} /> : <></>}
                 </div>
 
                 <hr className='mx-2'/>
