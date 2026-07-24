@@ -359,16 +359,16 @@ const Folder = ({ TreeNode, activeTab, setActiveTab, openTabs, setOpenTabs, inde
                 ]
             }/>)}
             { alertState === "Create New Note" && <NewNote 
-                    currDir={TreeNode.path} updateTree={() => setTreeVersion(v => v+1)} onClose={() => { setAlertState(''); stateTracker(Math.max(0, v-1)) }} 
+                    currDir={TreeNode.path} updateTree={() => setTreeVersion(v => v+1)} onClose={() => { setAlertState(''); stateTracker(v => Math.max(0, v-1)) }} 
                     onFileCreate={(path) => {fileCreate(path)}}
                 /> 
             }
-            { alertState === "Create New Folder" && <NewFolder currDir={TreeNode.path} updateTree={() => setTreeVersion(v => v+1)} onClose={() => { setAlertState(''); stateTracker(Math.max(0, v-1)) }}/>}
+            { alertState === "Create New Folder" && <NewFolder currDir={TreeNode.path} updateTree={() => setTreeVersion(v => v+1)} onClose={() => { setAlertState(''); stateTracker(v => Math.max(0, v-1)) }}/>}
             { alertState === "Delete Folder" && <DeletePath 
-                path={TreeNode.path} onClose={() => { setAlertState(''); stateTracker(Math.max(0, v-1)) }} updateTree={() => setTreeVersion(v => v+1)} 
+                path={TreeNode.path} onClose={() => { setAlertState(''); stateTracker(v => Math.max(0, v-1)) }} updateTree={() => setTreeVersion(v => v+1)} 
                 onFileDestroy={fileDestroy}/>
             }
-            { alertState === "Rename Folder" && <RenameFolder currDir={TreeNode.path} updateTree={() => setTreeVersion(v => v+1)} onClose={() => { setAlertState(''); stateTracker(Math.max(0, v-1)) }} onFolderRename={(oldPath, newPath) => folderRename(oldPath, newPath)}/>}
+            { alertState === "Rename Folder" && <RenameFolder currDir={TreeNode.path} updateTree={() => setTreeVersion(v => v+1)} onClose={() => { setAlertState(''); stateTracker(v => Math.max(0, v-1)) }} onFolderRename={(oldPath, newPath) => folderRename(oldPath, newPath)}/>}
             </div>
         );
     } else {
@@ -399,11 +399,11 @@ const Folder = ({ TreeNode, activeTab, setActiveTab, openTabs, setOpenTabs, inde
                     ]
                 }/>)}
                 { alertState === "Delete File" && <DeletePath 
-                    path={TreeNode.path} onClose={() => { setAlertState(''); stateTracker(Math.max(0, v-1)) }} updateTree={() => setTreeVersion(v => v+1)} 
+                    path={TreeNode.path} onClose={() => { setAlertState(''); stateTracker(v => Math.max(0, v-1)) }} updateTree={() => setTreeVersion(v => v+1)} 
                     onFileDestroy={fileDestroy}/>
                 }
                 { alertState === "Rename File" && <RenameFile 
-                    currDir={TreeNode.path} updateTree={() => setTreeVersion(v => v+1)} onClose={() => { setAlertState(''); stateTracker(Math.max(0, v-1)) }} 
+                    currDir={TreeNode.path} updateTree={() => setTreeVersion(v => v+1)} onClose={() => { setAlertState(''); stateTracker(v => Math.max(0, v-1)) }} 
                     onFileRename={(oldPath, newPath) => {fileRename(oldPath, newPath)}}/>
                 }
             </div>
