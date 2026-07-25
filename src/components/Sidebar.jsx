@@ -1,9 +1,12 @@
 import aginoteLogoOnly from "../assets/aginoteLogoOnly.png";
 import { PiUserCircle, PiFolders, PiFilePdf, PiGear, PiChats, PiCalendarBlank } from "react-icons/pi";
+import { IoBrushOutline } from "react-icons/io5";
+import { LuCommand } from "react-icons/lu";
 import Tooltip from "./Tooltip";
 import { useState } from "react";
 
-const Sidebar = ({setOpenExplorer, setOpenPrint, setOpenChat, setOpenReminder, setOpenAccount, setOpenSettings})  => {
+const Sidebar = ({setOpenExplorer, setOpenPrint, setOpenChat, setOpenReminder, setOpenAccount, setOpenThemes, setOpenHotkeys})  => {
+
     return (
         <>
             <aside className="flex flex-col bg-(--color-primary) h-screen border-r-2 border-(--color-border)">
@@ -49,9 +52,16 @@ const Sidebar = ({setOpenExplorer, setOpenPrint, setOpenChat, setOpenReminder, s
                         </Tooltip>
                     </ul>
                     <ul>
-                        <Tooltip text="Settings">
-                            <li onClick={() => setOpenSettings()} className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
-                                <PiGear size={32} className="text-(--color-icon) group-hover:text-(--color-hover)"/>
+                        <Tooltip text="Themes">
+                            <li onClick={() => setOpenThemes()} className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
+                                <IoBrushOutline size={32} className="text-(--color-icon) group-hover:text-(--color-hover)"/>
+                            </li>
+                        </Tooltip>
+                    </ul>
+                    <ul>
+                        <Tooltip text="Hotkeys">
+                            <li onClick={() => setOpenHotkeys()} className="flex item-center p-3 my-1 hover:bg-(--color-secondary) cursor-pointer group">
+                                <LuCommand size={32} className="text-(--color-icon) group-hover:text-(--color-hover)"/>
                             </li>
                         </Tooltip>
                     </ul>

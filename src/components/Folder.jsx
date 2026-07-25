@@ -221,7 +221,7 @@ const uploadFileToCloud = async (path) => {
     }
 }
 
-const Folder = ({ TreeNode, activeTab, setActiveTab, openTabs, setOpenTabs, indents, setTreeVersion, dragItem, setDragItem, setCloudVersion }) => {
+const Folder = ({ TreeNode, activeTab, setActiveTab, openTabs, setOpenTabs, indents, setTreeVersion, dragItem, setDragItem, stateTracker, setCloudVersion }) => {
     const [expand, setExpand] = useState(false);
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
     const [alertState, setAlertState] = useState('');
@@ -379,24 +379,24 @@ const Folder = ({ TreeNode, activeTab, setActiveTab, openTabs, setOpenTabs, inde
                 </div>
             {contextMenu.visible && (<ContextMenu x={contextMenu.x} y={contextMenu.y} onClose={() => {setContextMenu({ visible: false, x: 0, y: 0 })}} items={
                 [
-                    {id: 1, name: "Create New Note", onClick: (() => setAlertState("Create New Note"))},
-                    {id: 2, name: "Create New Folder", onClick: (() => setAlertState("Create New Folder"))},
-                    {id: 3, name: "Delete Folder", onClick: (() => setAlertState("Delete Folder"))},
-                    {id: 4, name: "Rename Folder", onClick: (() => setAlertState("Rename Folder"))},
+                    {id: 1, name: "Create New Note", onClick: (() => {setAlertState("Create New Note"); stateTracker(v => v + 1)})},
+                    {id: 2, name: "Create New Folder", onClick: (() => {setAlertState("Create New Folder"); stateTracker(v => v + 1)})},
+                    {id: 3, name: "Delete Folder", onClick: (() => {setAlertState("Delete Folder"); stateTracker(v => v + 1)})},
+                    {id: 4, name: "Rename Folder", onClick: (() => {setAlertState("Rename Folder"); stateTracker(v => v + 1)})},
                     {id: 5, name: "Make a Copy", onClick: (() => copyFolder(TreeNode.path, () => setTreeVersion(v => v+1)))},
                 ]
             }/>)}
             { alertState === "Create New Note" && <NewNote 
-                    currDir={TreeNode.path} updateTree={() => setTreeVersion(v => v+1)} onClose={() => setAlertState('')} 
+                    currDir={TreeNode.path} updateTree={() => setTreeVersion(v => v+1)} onClose={() => { setAlertState(''); stateTracker(v => Math.max(0, v-1)) }} 
                     onFileCreate={(path) => {fileCreate(path)}}
                 /> 
             }
-            { alertState === "Create New Folder" && <NewFolder currDir={TreeNode.path} updateTree={() => setTreeVersion(v => v+1)} onClose={() => setAlertState('')}/>}
+            { alertState === "Create New Folder" && <NewFolder currDir={TreeNode.path} updateTree={() => setTreeVersion(v => v+1)} onClose={() => { setAlertState(''); stateTracker(v => Math.max(0, v-1)) }}/>}
             { alertState === "Delete Folder" && <DeletePath 
-                path={TreeNode.path} onClose={() => setAlertState('')} updateTree={() => setTreeVersion(v => v+1)} 
+                path={TreeNode.path} onClose={() => { setAlertState(''); stateTracker(v => Math.max(0, v-1)) }} updateTree={() => setTreeVersion(v => v+1)} 
                 onFileDestroy={fileDestroy}/>
             }
-            { alertState === "Rename Folder" && <RenameFolder currDir={TreeNode.path} updateTree={() => setTreeVersion(v => v+1)} onClose={() => setAlertState('')} onFolderRename={(oldPath, newPath) => folderRename(oldPath, newPath)}/>}
+            { alertState === "Rename Folder" && <RenameFolder currDir={TreeNode.path} updateTree={() => setTreeVersion(v => v+1)} onClose={() => { setAlertState(''); stateTracker(v => Math.max(0, v-1)) }} onFolderRename={(oldPath, newPath) => folderRename(oldPath, newPath)}/>}
             </div>
         );
     } else {
@@ -421,18 +421,18 @@ const Folder = ({ TreeNode, activeTab, setActiveTab, openTabs, setOpenTabs, inde
                 <span className="w-full">{TreeNode.name}</span>
                 {contextMenu.visible && (<ContextMenu x={contextMenu.x} y={contextMenu.y} onClose={() => {setContextMenu({ visible: false, x: 0, y: 0})}} items={
                     [
-                        {id: 1, name: "Delete Note", onClick: (() => setAlertState("Delete File"))},
-                        {id: 2, name: "Rename Note", onClick: (() => setAlertState("Rename File"))},
+                        {id: 1, name: "Delete Note", onClick: (() => {setAlertState("Delete File"); stateTracker(v => v + 1)})},
+                        {id: 2, name: "Rename Note", onClick: (() => {setAlertState("Rename File"); stateTracker(v => v + 1)})},
                         {id: 3, name: "Make a Copy", onClick: (() => copyFile(TreeNode.path, () => setTreeVersion(v => v+1)))},
                         {id: 4, name: "Upload to Cloud", onClick: (() => uploadFileToCloud(TreeNode.path))},
                     ]
                 }/>)}
                 { alertState === "Delete File" && <DeletePath 
-                    path={TreeNode.path} onClose={() => setAlertState('')} updateTree={() => setTreeVersion(v => v+1)} 
+                    path={TreeNode.path} onClose={() => { setAlertState(''); stateTracker(v => Math.max(0, v-1)) }} updateTree={() => setTreeVersion(v => v+1)} 
                     onFileDestroy={fileDestroy}/>
                 }
                 { alertState === "Rename File" && <RenameFile 
-                    currDir={TreeNode.path} updateTree={() => setTreeVersion(v => v+1)} onClose={() => setAlertState('')} 
+                    currDir={TreeNode.path} updateTree={() => setTreeVersion(v => v+1)} onClose={() => { setAlertState(''); stateTracker(v => Math.max(0, v-1)) }} 
                     onFileRename={(oldPath, newPath) => {fileRename(oldPath, newPath)}}/>
                 }
             </div>

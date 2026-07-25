@@ -46,40 +46,13 @@ const Tab = ({tab, hoverTab, setHoverTab, activeTab, setActiveTab, closeTab}) =>
     )
 }
 
-const Navbar = ({openTabs, setOpenTabs, activeTab, setActiveTab}) => {
+const Navbar = ({openTabs, activeTab, setActiveTab, newTab, closeTab}) => {
     const [hoverTab, setHoverTab] = useState('');
 
     useEffect(() => {
         localStorage.setItem("activeTab", activeTab);
         localStorage.setItem("openTabs", JSON.stringify(openTabs));
     }, [openTabs, activeTab]);
-
-    function newTab() {
-        const blankTabsId = crypto.randomUUID();
-        const blankTab = {
-            tabId: crypto.randomUUID(), noOfTabs: 1, activeScreen: blankTabsId,
-            screens: {
-                screenId: blankTabsId, displayType: "file", path: null
-            }
-        }
-        setOpenTabs(prev => [ ...prev, blankTab ]);
-        setActiveTab(blankTab.tabId);
-    }
-
-    function closeTab(tabId) {
-        let tmp = openTabs.findIndex(item => item.tabId === tabId);
-        const updated = openTabs.filter(item => item.tabId !== tabId);
-        setOpenTabs(updated);
-        if (updated.length === 0) {
-            newTab();
-        } else {
-            if (tmp === updated.length) {
-                setActiveTab(updated[tmp-1].tabId);
-            } else {
-                setActiveTab(updated[tmp].tabId);
-            }
-        }
-    }
 
     return (
         <div className="w-full h-[42px] bg-(--color-primary)">

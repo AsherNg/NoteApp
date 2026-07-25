@@ -8,19 +8,20 @@ import Dropdown from '../components/Dropdown.jsx';
 import PrintPreview from '../components/PrintPreview.jsx';
 import Reminder from '../components/Reminder.jsx';
 import { IoClose, IoMenu, IoTrashOutline, IoPencil } from "react-icons/io5";
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import { InputField, Alert, Button, ContextMenu } from '../components/form.jsx';
 import Loading  from "./loading.jsx";
 import supabase from "../supabaseClient.jsx";
 import CustomPage from './settings/customPage.jsx';
 import { EditorView } from 'codemirror';
 import { useNavigate } from 'react-router-dom';
+import { initHotkeys, HotkeysPage } from '../pages/settings/hotkeys.jsx';
 
 function NewTab({tabId, activeId, setShowNewNote}) {
     return (<div className={`w-full grow flex justify-center items-center flex-col gap-2 ${tabId !== activeId ? 'hidden' : ''}`}>
                 <Button text="Create New Note" onClick={() => setShowNewNote(true)} enabled={true} type="button" />
                 <div className='text-sm text-[var(--color-text)]'>Click any of your previous files to change this tab!</div>
-            </div>)
+            </div>);
 }
 
 function NewNote({ homeDir, onClose, updateTree, onFileCreate }) {
@@ -49,6 +50,7 @@ function NewNote({ homeDir, onClose, updateTree, onFileCreate }) {
             }
         }
     }
+
     return (
         <Alert menuRef={menuRef} events={["mousedown", "keydown"]} conditionals={[(mouseDown) => !menuRef.current.contains(mouseDown.target), (keyDown) => keyDown.key === 'Enter']} actions={[onClose, () => submitNote(name)]}>
             <div className="flex flex-col justify-center items-center text-(--color-hover)">
@@ -56,7 +58,8 @@ function NewNote({ homeDir, onClose, updateTree, onFileCreate }) {
                 <div className="text-[var(--color-text)] text-sm ml-auto">Click enter to submit, click outside the box to close this window!</div>
             </div>
         </Alert>
-    )}
+    );
+}
 
 function ScreenHelper({activeTab, openTabs, setOpenTabs, screens, tabId, onRightSplit, onDownSplit, onCloseDisplay, setShowNewNote, viewRefs}) {
     const [tabMenu, setTabMenu] = useState(false);
@@ -114,8 +117,10 @@ function Home() {
     const [openChat, setOpenChat] = useState(false);
     const [openReminder, setOpenReminder] = useState(false);
     const [openAccount, setOpenAccount] = useState(false);
-    const [openSettings, setOpenSettings] = useState(false);
+    const [openThemes, setOpenThemes] = useState(false);
     const [openCustomiseStyle, setOpenCustomiseStyle] = useState(false);
+    const [openHotkeys, setOpenHotkeys] = useState(false);
+    const [deleteFileAlert, setDeleteFileAlert] = useState(false)
 
     const [openTabs, setOpenTabs] = useState(() => {
         const saved = localStorage.getItem("openTabs");
@@ -152,6 +157,7 @@ function Home() {
     const [showNewNote, setShowNewNote] = useState(false);
     const [homeDir, setHomeDir] = useState(null);
     const [stylesDir, setStylesDir] = useState(null);
+    const [hotkeysDir, setHotkeysDir] = useState(null);
     const [treeVersion, setTreeVersion] = useState(0);
     const [loading, setLoading] = useState(true);
     const refreshTree = () => setTreeVersion(v => v+1);
@@ -173,9 +179,11 @@ function Home() {
     useEffect(() => {
         const savedNotes = localStorage.getItem('rootFolder');
         const savedStyles = localStorage.getItem('stylesFolder');
-        if (savedNotes && savedStyles) {
+        const savedHotkeys = localStorage.getItem('savedHotkeys');
+        if (savedNotes && savedStyles && savedHotkeys) {
             setHomeDir(savedNotes);
             setStylesDir(savedStyles);
+            setHotkeysDir(savedHotkeys);
             setLoading(false);
         } else {
             window.fileApi.initDefault().then(h => {
@@ -183,6 +191,8 @@ function Home() {
                 localStorage.setItem('rootFolder', h[0]);
                 setStylesDir(h[1]);
                 localStorage.setItem('stylesFolder', h[1]);
+                setHotkeysDir(h[2]);
+                localStorage.setItem('savedHotkeys', h[2]);
                 setLoading(false);
             });
         };
@@ -386,6 +396,192 @@ function Home() {
         }
     }
 
+    function newTab() {
+        const blankTabsId = crypto.randomUUID();
+        const blankTab = {
+            tabId: crypto.randomUUID(), noOfTabs: 1, activeScreen: blankTabsId,
+            screens: {
+                screenId: blankTabsId, displayType: "file", path: null
+            }
+        }
+        setOpenTabs(prev => [ ...prev, blankTab ]);
+        setActiveTab(blankTab.tabId);
+    }
+
+    function closeTab(tabId) {
+        let tmp = openTabs.findIndex(item => item.tabId === tabId);
+        const updated = openTabs.filter(item => item.tabId !== tabId);
+        setOpenTabs(updated);
+        if (updated.length === 0) {
+            newTab();
+        } else {
+            if (tmp === updated.length) {
+                setActiveTab(updated[tmp-1].tabId);
+            } else {
+                setActiveTab(updated[tmp].tabId);
+            }
+        }
+    }
+
+    const currPathHelp = (screen, activeScreenId) => {
+        if (activeScreenId === screen.screenId) {
+            return screen.path;
+        } else {
+            if (!screen.displays) {
+                return;
+            }
+            for (const d of screen.displays) {
+                let tmp = currPathHelp(d, activeScreenId);
+                if (tmp) {
+                    return tmp;
+                }
+            }
+        }
+    }
+
+    const currPath = () => {
+        const tab = openTabs.find(tab => activeTab.id === tab.id);
+        return currPathHelp(tab.screens, tab.activeScreen);
+    }
+
+    const DeletePath = ({path, onClose, updateTree, onFileDestroy}) => { 
+        const menuRef = useRef(null);
+        const handleSubmit = async () => {
+            await window.fileApi.deleteFile(path);
+            if (path === localStorage.getItem('rootFolder')) {
+                await window.fileApi.initDefault();
+            }
+            updateTree();
+            onFileDestroy();
+            onClose();
+        }
+
+        return (
+            <Alert menuRef={menuRef} events={["mousedown", "keydown"]} conditionals = {[(e) => !menuRef.current.contains(e.target), (e) => e.key === 'Enter']} actions={[onClose, handleSubmit]}>
+                <div className="flex flex-col justify-center items-center text-(--color-hover)">
+                <div className="text-[var(--color-text)] text-md">Once this is done, it cannot be undone!</div>
+                <div className="text-[var(--color-text)] text-md">Are you sure to delete <em>{path.substring(path.lastIndexOf('/')+1)}</em>?</div>
+                <div className="text-[var(--color-text)] text-sm mb-1">(If you aren't just click outside this box! If you are, just click Enter!)</div>
+                <div className="flex justify-center gap-4">
+                    <Button text="Cancel" onClick={onClose} />
+                    <Button text="Confirm" onClick={handleSubmit} className="bg-(--color-danger) hover:bg-(--color-dangerHover)"/>
+                </div>
+            </div>
+            </Alert>
+        )
+    }
+
+    const fileDestroyHelper = async (screen) => {
+        if (screen.displayType === "file") {
+            if (!screen.path) return screen;
+            const exists = await window.fileApi.checkExists(screen.path);
+            return exists ? screen : { ...screen, path: null };
+        }
+        if (screen.displays) {
+            const updatedDisplays = await Promise.all(
+                screen.displays.map(async d => await fileDestroyHelper(d))
+            );
+            return { ...screen, displays: updatedDisplays }
+        }
+        return screen;
+    }
+
+    const fileDestroy = async () => {
+        const newTabs = await Promise.all(openTabs.map(async tab => ({ ...tab, screens: await fileDestroyHelper(tab.screens) })))
+        setOpenTabs(newTabs);
+    }
+
+    const [renameFileAlert, setRenameFileAlert] = useState(false);
+
+    const RenameFile = ({ path, onClose, updateTree, onFileRename }) => {
+        const menuRef = useRef(null);
+        const [name, setName] = useState('');
+        const [focused, setFocused] = useState(true);
+        const checkValidName = (n) => /^[a-zA-Z0-9_\-\.\s]+$/.test(n.trim());
+
+        const handleSubmit = async () => {
+            if (!checkValidName(name)) return;
+            const dir = path.substring(0, path.lastIndexOf('\\'));
+            const newPath = `${dir}/${name}.md`;
+            if (await window.fileApi.checkExists(newPath)) return; // could surface an error state here
+            await window.fileApi.rename(path, newPath);
+            onFileRename(path, newPath);
+            updateTree();
+            onClose();
+        };
+
+        return (
+            <Alert menuRef={menuRef} events={["mousedown", "keydown"]}
+            conditionals={[(e) => !menuRef.current.contains(e.target), (e) => e.key === 'Enter']}
+            actions={[onClose, handleSubmit]}>
+            <div className="flex flex-col justify-center items-center text-(--color-hover)">
+            <InputField id="renameFile" label="Rename Note" type="text" value={name} setter={setName}
+            onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} isFocused={focused} example="Untitled"/>
+            <div className="text-[var(--color-text)] text-sm ml-auto">Click enter to submit, click outside the box to close this window!</div>
+            </div>
+            </Alert>
+        );
+    };
+
+    const fileRenameHelp = (screen, oldPath, newPath) => {
+        if (screen.displayType === 'file') {
+            return screen.path === oldPath ? { ...screen, path: newPath } : screen;
+        }
+        if (screen.displays) {
+            return { ...screen, displays: screen.displays.map(d => fileRenameHelp(d, oldPath, newPath)) };
+        }
+        return screen;
+    };
+
+    const onFileRename = (oldPath, newPath) => {
+        setOpenTabs(tabs => tabs.map(tab => ({ ...tab, screens: fileRenameHelp(tab.screens, oldPath, newPath) })));
+    };
+
+    const [hotkeys, setHotkeys] = useState(initHotkeys);
+    const [blockCount, setBlockCount] = useState(0);
+    const actions = {
+        1: () => { setShowNewNote(true); setBlockCount(v => v + 1); },
+        2: () => {},
+        3: () => { setDeleteFileAlert(true); setBlockCount(v => v + 1); },
+        4: () => { setRenameFileAlert(true); setBlockCount(v => v + 1); },
+        5: splitRight,
+        6: splitDown,
+        7: closeDisplay,
+        8: newTab,
+        9: () => { closeTab(activeTab); }
+    };
+
+    useEffect(() => {
+        if (!hotkeysDir) return;
+        const loadHotkeys = async () => {
+            const exists = await window.fileApi.checkExists(hotkeysDir);
+            if (exists) {
+                const content = await window.fileApi.readFile(hotkeysDir);
+                setHotkeys(JSON.parse(content));
+            } else {
+                await window.fileApi.writeFile(hotkeysDir, JSON.stringify(initHotkeys));
+            }
+        };
+        loadHotkeys();
+    }, [hotkeysDir]);
+
+    useEffect(() => {
+        if (!hotkeysDir) return;
+        window.fileApi.writeFile(hotkeysDir, JSON.stringify(hotkeys));
+        const handler = (e) => {
+            if (e.repeat) return;
+            if (blockCount > 0) return;
+            const mod = e.metaKey || e.ctrlKey;
+            const match = hotkeys.find(kb => kb.key === e.key.toLowerCase() && kb.mod === mod && !!kb.shift === e.shiftKey);
+            if (match && actions[match.id]) {
+                e.preventDefault();
+                actions[match.id]();
+            }
+        };
+        window.addEventListener('keydown', handler);
+        return () => window.removeEventListener('keydown', handler);
+    }, [openTabs, blockCount, hotkeysDir, hotkeys, actions]);
+
     if (loading) return <Loading />
 
     return (
@@ -396,11 +592,11 @@ function Home() {
                 const content = viewRefs.current.get(tab?.activeScreen)?.current.state.doc.toString() ?? "";
                 setMarkdown(content);
                 setOpenPrint(true);
-                }} setOpenChat={() => setOpenChat(!openChat)} setOpenReminder={() => setOpenReminder(true)} setOpenAccount={() => setOpenAccount(true)} setOpenSettings={() => setOpenSettings(true)}/>
+                }} setOpenChat={() => setOpenChat(!openChat)} setOpenReminder={() => setOpenReminder(true)} setOpenAccount={() => setOpenAccount(true)} setOpenThemes={() => setOpenThemes(true)} setOpenHotkeys={() => setOpenHotkeys(true)}/>
             <Explorer open={openExplorer} treeVersion={treeVersion} activeTab={activeTab} setActiveTab={setActiveTab} openTabs={openTabs} setOpenTabs={setOpenTabs} setTreeVersion={setTreeVersion} />
             <div className='grow w-[calc(100vh-56px)] h-screen flex flex-col'>
-                <Navbar openTabs={openTabs} setOpenTabs={setOpenTabs} activeTab={activeTab} setActiveTab={setActiveTab} />
-                {showNewNote && <NewNote homeDir={homeDir} onClose={() => setShowNewNote(false)} updateTree={refreshTree} onFileCreate={onFileCreate}/>}
+                <Navbar openTabs={openTabs} activeTab={activeTab} setActiveTab={setActiveTab} newTab={newTab} closeTab={closeTab}/>
+                {showNewNote && <NewNote homeDir={homeDir} onClose={() => {setShowNewNote(false); setBlockCount(v => Math.max(0, v - 1)); }} updateTree={refreshTree} onFileCreate={onFileCreate}/>}
                 <div className='w-full h-[calc(100vh-42px)] flex flex-col items-center mt-1'>
                     {
                         openTabs.map(tab => (
@@ -414,7 +610,17 @@ function Home() {
 
             <Chat open={openChat} closeChat={() => setOpenChat(false)}/>
 
-            <Modal isOpen={openPrint} setOpen={setOpenPrint}>
+            {deleteFileAlert && (<DeletePath path={currPath()} onClose={() => {setDeleteFileAlert(false); setBlockCount(c => Math.max(0, c - 1));}} updateTree={() => setTreeVersion(v => v + 1)} onFileDestroy={fileDestroy}/>)}
+            {renameFileAlert && (
+                <RenameFile 
+                path={currPath()} 
+                onClose={() => { setRenameFileAlert(false); setBlockCount(c => Math.max(0, c - 1)); }}
+                updateTree={() => setTreeVersion(v => v + 1)} 
+                onFileRename={onFileRename}
+                />
+            )}
+
+            <Modal isOpen={openPrint} setOpen={setOpenPrint} stateTracker={setBlockCount}>
                 <div className="w-3xl h-[80%] bg-(--color-bg) rounded-lg p-10 text-(--color-text) flex flex-col">
                     <div className="flex flex-row justify-between w-full">
                         <span className="font-bold text-(--color-hover)">Export to PDF</span>
@@ -436,7 +642,7 @@ function Home() {
                 </div>
             </Modal>
 
-            <Modal isOpen={openAccount} setOpen={setOpenAccount}>
+            <Modal isOpen={openAccount} setOpen={setOpenAccount} stateTracker={setBlockCount}>
                 <div className="w-3xl h-[80%] bg-(--color-bg) rounded-lg p-10 text-(--color-text)">
                     <div className="flex flex-row justify-between w-full">
                         <span className="font-bold text-(--color-hover)">Account</span>
@@ -449,11 +655,11 @@ function Home() {
                 </div>
             </Modal>
 
-            <Modal isOpen={openSettings} setOpen={setOpenSettings}>
+            <Modal isOpen={openThemes} setOpen={setOpenThemes} stateTracker={setBlockCount}>
                 <div className="w-2xl h-[80%] flex flex-col items-center bg-(--color-bg) rounded-lg p-10 text-(--color-text)">
                     <div className="flex flex-row justify-between w-full my-3">
-                        <span className="font-bold text-lg text-(--color-hover)">Settings</span>
-                        <IoClose size={24} onClick={() => setOpenSettings(false)} className="cursor-pointer hover:text-(--color-hover)"/>
+                        <span className="font-bold text-lg text-(--color-hover)">Themes</span>
+                        <IoClose size={24} onClick={() => setOpenThemes(false)} className="cursor-pointer hover:text-(--color-hover)"/>
                     </div>
                     <div className="border-1 border-(--color-border) w-full my-3"></div>
                     <div className="flex justify-between items-center w-full my-3">
@@ -468,12 +674,12 @@ function Home() {
                             <span className="font-semibold text-(--color-hover)">Add Theme</span>
                             <span>Add a custom color theme for the app</span>
                         </div>
-                        <button onClick={() => {setOpenSettings(false); setTheme("Dark"); setOpenCustomiseStyle(true);}} className="border-1 border-(--color-text) rounded-sm px-4 py-2 text-(--color-active) cursor-pointer">Customise</button>
+                        <button onClick={() => {setOpenThemes(false); setTheme("Dark"); setOpenCustomiseStyle(true);}} className="border-1 border-(--color-text) rounded-sm px-4 py-2 text-(--color-active) cursor-pointer">Customise</button>
                     </div>
                 </div>
             </Modal>
-            <Modal isOpen={openCustomiseStyle} setOpen={setOpenCustomiseStyle}>
-                <CustomPage themeName={theme} setTheme={setTheme} setOpenCustomiseStyle={setOpenCustomiseStyle} setOpenSettings={setOpenSettings} stylesDir={stylesDir} setThemeOptionsVersion={setThemeOptionsVersion}/>
+            <Modal isOpen={openCustomiseStyle} setOpen={setOpenCustomiseStyle} stateTracker={setBlockCount}>
+                <CustomPage themeName={theme} setTheme={setTheme} setOpenCustomiseStyle={setOpenCustomiseStyle} setOpenThemes={setOpenThemes} stylesDir={stylesDir} setThemeOptionsVersion={setThemeOptionsVersion}/>
             </Modal>
             {deleteThemeAlert.length > 0 && <Alert menuRef={deleteThemeRef} events={["mousedown", "keydown"]} conditionals={[(mousedown) => !deleteThemeRef.current.contains(mousedown.target), (keydown) => keydown.key === 'Enter']} actions={[() => setDeleteThemeAlert(false), () => deleteThemeFunc(deleteThemeAlert)]}>
                 <div className="flex flex-col justify-center items-center text-(--color-hover)">
@@ -486,6 +692,9 @@ function Home() {
                     </div>
                 </div>
             </Alert>}
+            <Modal isOpen={openHotkeys} setOpen={setOpenHotkeys} stateTracker={setBlockCount}>
+                <HotkeysPage hotkeys={hotkeys} setHotkeys={setHotkeys} setOpenHotkeys={setOpenHotkeys}/>
+            </Modal>
         </div>
     );
 }

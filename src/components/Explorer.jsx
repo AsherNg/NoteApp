@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import supabase from '../supabaseClient.jsx';
 import { IoCloudDownloadOutline } from "react-icons/io5";
 
-const Explorer = ({ open, treeVersion, activeTab, setActiveTab, openTabs, setOpenTabs, setTreeVersion }) => {
+const Explorer = ({ open, treeVersion, activeTab, setActiveTab, openTabs, setOpenTabs, setTreeVersion, stateTracker }) => {
     const [data, setData] = useState(null);
     const [dragItem, setDragItem] = useState('');
     const [cloudFiles, setCloudFiles] = useState([]);
@@ -98,7 +98,7 @@ const Explorer = ({ open, treeVersion, activeTab, setActiveTab, openTabs, setOpe
             <nav className="flex flex-col">
                 <div className="p-2">
                     <span> Local Files </span>
-                    {data ? <Folder className="ml-2" TreeNode={data} activeTab={activeTab} setActiveTab={setActiveTab} openTabs={openTabs} setOpenTabs={setOpenTabs} indents={0} setTreeVersion={setTreeVersion} dragItem={dragItem} setDragItem={setDragItem} setCloudVersion={setCloudVersion} /> : <></>}
+                    {data ? <Folder className="ml-2" TreeNode={data} activeTab={activeTab} setActiveTab={setActiveTab} openTabs={openTabs} setOpenTabs={setOpenTabs} indents={0} setTreeVersion={setTreeVersion} dragItem={dragItem} setDragItem={setDragItem} stateTracker={stateTracker} setCloudVersion={setCloudVersion} /> : <></>}
                 </div>
 
                 <hr className='mx-2'/>

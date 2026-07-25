@@ -1,11 +1,13 @@
 import { useEffect, useRef } from "react";
 
 
-const Modal = ({ children, isOpen, setOpen }) => {
+const Modal = ({ children, isOpen, setOpen, stateTracker }) => {
     const menuRef = useRef(null);
     useEffect(() => {
         const clickAway = (e) => {
-            if (menuRef.current && menuRef.current === e.target) setOpen(false);
+            if (menuRef.current && menuRef.current === e.target) {
+                setOpen(false);
+            }
         }
         document.addEventListener("mousedown", clickAway);
         return () => document.removeEventListener("mousedown", clickAway);
@@ -18,6 +20,13 @@ const Modal = ({ children, isOpen, setOpen }) => {
             document.body.style.overflow = '';      
         }
         return () => {document.body.style.overflow = '';};
+    }, [isOpen]);
+    
+    useEffect(() => {
+        if (isOpen) {
+            stateTracker(c => c + 1);
+            return () => stateTracker(c => Math.max(0, c - 1)); // cleanup runs on isOpen→false OR unmount
+        }
     }, [isOpen]);
 
     if (!isOpen) return null;
