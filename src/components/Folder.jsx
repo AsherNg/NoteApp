@@ -1,6 +1,7 @@
 import { IoChevronDownSharp } from "react-icons/io5";
 import { useEffect, useRef, useState } from "react";
 import { Alert, ContextMenu, InputField, Button } from "./form.jsx";
+import supabase from '../supabaseClient.jsx';
 
 const checkValidName = (name) => /^[a-zA-Z0-9_\-\.\s]+$/.test(name.trim());
 
@@ -193,7 +194,34 @@ const copyFile = async (path, updateTree) => {
     updateTree();
 }
 
-const Folder = ({ TreeNode, activeTab, setActiveTab, openTabs, setOpenTabs, indents, setTreeVersion, dragItem, setDragItem, stateTracker }) => {
+const uploadFileToCloud = async (path) => {
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const fileName = await window.fileApi.getName(path);
+        const content = await window.fileApi.readFile(path);
+
+        const { error } = await supabase
+            .from('cloud_notes')
+            .upsert({
+                user_id: user.id,
+                file_name: fileName,
+                content: content,
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'user_id,file_name' });
+
+        if (error) {
+            console.error('Upload failed:', error);
+        } else {
+            setCloudVersion(v => v + 1);
+        }
+    } catch (e) {
+        console.error('Failed to upload to cloud:', e);
+    }
+}
+
+const Folder = ({ TreeNode, activeTab, setActiveTab, openTabs, setOpenTabs, indents, setTreeVersion, dragItem, setDragItem, stateTracker, setCloudVersion }) => {
     const [expand, setExpand] = useState(false);
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
     const [alertState, setAlertState] = useState('');
@@ -346,7 +374,7 @@ const Folder = ({ TreeNode, activeTab, setActiveTab, openTabs, setOpenTabs, inde
 
                 <div className={ expand ? "" : "hidden"}>
                     {TreeNode.items.map((item) => {
-                        return <Folder key={item.path} TreeNode={item} activeTab={activeTab} setActiveTab={setActiveTab} openTabs={openTabs} setOpenTabs={setOpenTabs} indents={indents + 10} setTreeVersion={setTreeVersion} dragItem={dragItem} setDragItem={setDragItem} />
+                        return <Folder key={item.path} TreeNode={item} activeTab={activeTab} setActiveTab={setActiveTab} openTabs={openTabs} setOpenTabs={setOpenTabs} indents={indents + 10} setTreeVersion={setTreeVersion} dragItem={dragItem} setDragItem={setDragItem} setCloudVersion={setCloudVersion} />
                     })}
                 </div>
             {contextMenu.visible && (<ContextMenu x={contextMenu.x} y={contextMenu.y} onClose={() => {setContextMenu({ visible: false, x: 0, y: 0 })}} items={
@@ -396,6 +424,7 @@ const Folder = ({ TreeNode, activeTab, setActiveTab, openTabs, setOpenTabs, inde
                         {id: 1, name: "Delete Note", onClick: (() => {setAlertState("Delete File"); stateTracker(v => v + 1)})},
                         {id: 2, name: "Rename Note", onClick: (() => {setAlertState("Rename File"); stateTracker(v => v + 1)})},
                         {id: 3, name: "Make a Copy", onClick: (() => copyFile(TreeNode.path, () => setTreeVersion(v => v+1)))},
+                        {id: 4, name: "Upload to Cloud", onClick: (() => uploadFileToCloud(TreeNode.path))},
                     ]
                 }/>)}
                 { alertState === "Delete File" && <DeletePath 
