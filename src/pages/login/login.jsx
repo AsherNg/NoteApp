@@ -4,8 +4,10 @@ import aginoteLogoOnly from "./../../assets/aginoteLogoOnly.png";
 import { InputField, Button, Linker } from "../../components/form.jsx";
 import { FcGoogle } from "react-icons/fc";
 import { ImGithub } from "react-icons/im";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
+    const navigate = useNavigate()
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
@@ -97,6 +99,7 @@ function Login() {
                         ))}
 
                         <Button className="my-4 w-md" text="Login" type="submit" enabled={isFormClean()} />
+                        {errors.err && <div className="text-(--color-danger) text-sm">{errors.err}</div>}
                     </div>
                     <div className="flex flex-row w-md justify-between px-4">
                         <Linker to="/register" text="Don't have an account?" />
