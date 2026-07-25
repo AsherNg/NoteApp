@@ -1,7 +1,8 @@
 import Folder from './Folder'
 import { useState, useEffect } from "react";
 import supabase from '../supabaseClient.jsx';
-import { IoCloudDownloadOutline } from "react-icons/io5";
+import { IoCloudDownloadOutline, IoTrashOutline } from "react-icons/io5";
+
 
 const Explorer = ({ open, treeVersion, activeTab, setActiveTab, openTabs, setOpenTabs, setTreeVersion, stateTracker }) => {
     const [data, setData] = useState(null);
@@ -48,7 +49,8 @@ const Explorer = ({ open, treeVersion, activeTab, setActiveTab, openTabs, setOpe
     }, []);
 
     useEffect(() => {
-        let channel;
+        let channel = null;
+        let cancelled = false;
 
         const fetchCloudFiles = async (userId) => {
             const { data, error } = await supabase
@@ -56,25 +58,31 @@ const Explorer = ({ open, treeVersion, activeTab, setActiveTab, openTabs, setOpe
                 .select('file_name, updated_at')
                 .eq('user_id', userId)
                 .order('file_name', { ascending: true });
-            if (!error) setCloudFiles(data);
+            if (!error && !cancelled) setCloudFiles(data);
         }
 
         const init = async () => {
             const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
+            if (!user || cancelled) return;
+
             await fetchCloudFiles(user.id);
+            if (cancelled) return;
 
             channel = supabase
-                .channel('cloud_notes_changes')
+                .channel(`cloud_notes_changes_${user.id}`)
                 .on('postgres_changes',
                     { event: '*', schema: 'public', table: 'cloud_notes', filter: `user_id=eq.${user.id}` },
                     () => fetchCloudFiles(user.id)
-                )
-                .subscribe();
+                );
+
+            channel.subscribe();
         }
         init();
 
-        return () => { if (channel) supabase.removeChannel(channel); }
+        return () => {
+            cancelled = true;
+            if (channel) supabase.removeChannel(channel);
+        }
     }, [cloudVersion]);
 
     const handleDownload = async (fileName) => {
@@ -91,6 +99,23 @@ const Explorer = ({ open, treeVersion, activeTab, setActiveTab, openTabs, setOpe
         }
         await window.fileApi.writeFile(path, data.content ?? '');
         setTreeVersion(v => v + 1);
+    }
+
+    const handleCloudDelete = async (fileName) => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { error } = await supabase
+            .from('cloud_notes')
+            .delete()
+            .eq('user_id', user.id)
+            .eq('file_name', fileName);
+
+        if (error) {
+            console.error('Cloud delete failed:', error);
+        } else {
+            setCloudFiles(prev => prev.filter(f => f.file_name !== fileName));
+        }
     }
 
     return (
@@ -112,11 +137,26 @@ const Explorer = ({ open, treeVersion, activeTab, setActiveTab, openTabs, setOpe
                         {cloudFiles.map(f => (
                             <div
                                 key={f.file_name}
-                                className="flex items-center justify-between pr-2 cursor-pointer hover:bg-(--color-secondary)"
-                                onClick={() => handleDownload(f.file_name)}
+                                className="flex items-center justify-between pr-2 hover:bg-(--color-secondary)"
                             >
-                                <span className="text-ellipsis overflow-hidden whitespace-nowrap">{f.file_name}</span>
-                                <IoCloudDownloadOutline size={14} className="text-(--color-icon) shrink-0 ml-1" />
+                                <span
+                                    className="text-ellipsis overflow-hidden whitespace-nowrap cursor-pointer grow"
+                                    onClick={() => handleDownload(f.file_name)}
+                                >
+                                    {f.file_name}
+                                </span>
+                                <div className="flex items-center gap-1 shrink-0 ml-1">
+                                    <IoCloudDownloadOutline
+                                        size={14}
+                                        className="text-(--color-icon) cursor-pointer hover:text-(--color-hover)"
+                                        onClick={() => handleDownload(f.file_name)}
+                                    />
+                                    <IoTrashOutline
+                                        size={14}
+                                        className="text-(--color-icon) cursor-pointer hover:text-(--color-danger)"
+                                        onClick={(e) => { e.stopPropagation(); handleCloudDelete(f.file_name); }}
+                                    />
+                                </div>
                             </div>
                         ))}
                     </div>
