@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { IoAdd, IoChevronDown, IoClose, IoTrash, IoKey   } from "react-icons/io5";
+import { IoAdd, IoChevronDown, IoClose, IoTrash, IoKey, IoLogOutOutline   } from "react-icons/io5";
 import supabase from "../supabaseClient";
 import { GoogleGenAI } from "@google/genai";
 
@@ -29,6 +29,15 @@ async function saveApiKey(key) {
         { user_id: uid, api_key: key },
         { onConflict: "user_id" }
     );
+}
+
+async function clearApiKey() {
+    const uid = await getUserId();
+    if (!uid) return;
+    await supabase
+        .from("user_settings")
+        .update({ api_key: null })
+        .eq("user_id", uid);
 }
 
 async function loadConversations() {
@@ -246,6 +255,18 @@ const Chat = ({ open, closeChat }) => {
         }
     }
 
+    const handleSignOut = async () => {
+        await clearApiKey();
+        ai = null;
+        chatbot = undefined;
+        setApiKey(null);
+        setConversations([]);
+        setActiveConvId(null);
+        setMessages([]);
+        setShowSidebar(false);
+        setError("");
+    }
+
     const handleSend = async () => {
         const text = input.trim();
         if (!text || sending) return;
@@ -295,9 +316,19 @@ const Chat = ({ open, closeChat }) => {
     return (
         <div className="h-screen bg-(--color-primary) w-[20%] border-(--color-border) border-l-1 flex flex-col justify-between p-4 text-(--color-text)">
             <div className="flex flex-col justify-start">
-                <div className="flex flex-row justify-between border-b-1 border-(--color-border) pb-2">
+                <div className="flex flex-row justify-between items-center border-b-1 border-(--color-border) pb-2">
                     <span className="text-(--color-active)">Chat</span>
-                    <IoClose size={24} onClick={() => closeChat()} className="cursor-pointer hover:text-(--color-hover)"/>
+                    <div className="flex items-center gap-3">
+                        {apiKey && (
+                            <IoLogOutOutline
+                                size={20}
+                                onClick={handleSignOut}
+                                className="cursor-pointer hover:text-(--color-hover)"
+                                title="Remove saved API key"
+                            />
+                        )}
+                        <IoClose size={24} onClick={() => closeChat()} className="cursor-pointer hover:text-(--color-hover)"/>
+                    </div>
                 </div>
                 {apiKey && (
                     <div className="flex items-center my-1">
