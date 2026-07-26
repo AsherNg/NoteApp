@@ -631,7 +631,7 @@ function Home() {
                 </div>
             </Modal>
 
-            <Modal isOpen={openReminder} setOpen={setOpenReminder}>
+            <Modal isOpen={openReminder} setOpen={setOpenReminder} stateTracker={setBlockCount}>
                 <div className="w-3xl h-[80%] bg-(--color-bg) rounded-lg p-10 text-(--color-text) flex flex-col">
                     <div className="flex flex-row justify-between w-full">
                         <span className="font-bold text-(--color-hover)">Set Reminders</span>
